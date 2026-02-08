@@ -3,8 +3,8 @@
 source_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
 
 [timestretch]
-source_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
-output_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch"
+source_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
+output_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/timestretch"
 target_tempo = 120
 
 

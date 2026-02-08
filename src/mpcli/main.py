@@ -13,6 +13,8 @@ from audiomentations.core.audio_loading_utils import load_sound_file
 from audiomentations.core.transforms_interface import (
     MultichannelAudioNotSupportedException,
 )
+from colorama import Fore, Style
+from colorama import init as colorama_init
 from scipy.io import wavfile
 from tempocnn.classifier import TempoClassifier
 from tempocnn.feature import read_features
@@ -21,6 +23,8 @@ from tqdm import tqdm
 from mpcli.entities.result import Result
 
 app = typer.Typer()
+
+colorama_init()
 
 
 @app.command()
@@ -39,11 +43,23 @@ def tempo():
 
     # read the file's features
     for source in Path(source_dir).glob("*.wav"):
-        features = read_features(source)
 
-        # estimate the global tempo
-        tempo = classifier.estimate_tempo(features, interpolate=False)
-        tempi.append(Result(file=source.name, tempo=tempo))
+        if source.is_dir() or source.stem.startswith("."):
+            print(
+                f"{Fore.RED}Skipping {source} (not a valid audio file){Style.RESET_ALL}"
+            )
+            continue
+
+        try:
+
+            features = read_features(source)
+
+            # estimate the global tempo
+            tempo = classifier.estimate_tempo(features, interpolate=False)
+            tempi.append(Result(file=source.name, tempo=tempo))
+
+        except audioread.exceptions.NoBackendError as e:
+            print(f"{Fore.RED}Error processing {source}: {e}{Style.RESET_ALL}")
 
     pprint(tempi, indent=2)
 
@@ -63,6 +79,13 @@ def timestretch():
     classifier = TempoClassifier(model_name)
 
     for source in Path(source_dir).glob("*.wav"):
+
+        if source.is_dir() or source.stem.startswith("."):
+            print(
+                f"{Fore.RED}Skipping {source} (not a valid audio file){Style.RESET_ALL}"
+            )
+            continue
+
         try:
             features = read_features(source)
 
@@ -104,6 +127,12 @@ def timestretch():
                     f"{source.stem}_{target_tempo}.wav",
                 )
 
+                if Path(output_file_path).exists():
+                    print(
+                        f"{Fore.YELLOW}Output file '{output_file_path}' already exists, overriding...{Style.RESET_ALL}"
+                    )
+                    Path(output_file_path).unlink()
+
                 augmented_samples = augmenter(samples=samples, sample_rate=sample_rate)
 
                 if len(augmented_samples.shape) == 2:
@@ -114,9 +143,9 @@ def timestretch():
                 )
 
         except audioread.exceptions.NoBackendError as e:
-            print(f"Error processing {source}: {e}")
+            print(f"{Fore.RED}Error processing {source}: {e}{Style.RESET_ALL}")
         except MultichannelAudioNotSupportedException as e:
-            print(e)
+            print(f"{Fore.RED}{e}{Style.RESET_ALL}")
 
 
 if __name__ == "__main__":
