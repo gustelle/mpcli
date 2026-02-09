@@ -1,10 +1,11 @@
 [tempo]
-#source_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
-source_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
+#source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
 
 [timestretch]
-source_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
-output_dir = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/timestretch"
-target_tempo = 120
+target_tempo = 120.0
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm/Glenn Gould - Bach - Prelude in C minor, BWV 847 Sl-06.wav"
+output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847"
+
 
 
