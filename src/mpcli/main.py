@@ -24,6 +24,35 @@ app = typer.Typer()
 colorama_init()
 
 
+def list_input_files(source_path: str) -> list[Path]:
+
+    # read the file's features
+    batch = []
+
+    if Path(source_path).is_file():
+        batch.append(Path(source_path))
+    else:
+
+        for source in Path(source_path).glob("*.*"):
+
+            if source.is_dir() or source.stem.startswith("."):
+                print(
+                    f"{Fore.YELLOW}Skipping {source} (not a valid audio file){Style.RESET_ALL}"
+                )
+                continue
+            elif not re.match(
+                r".*\.(wav|mp3|flac|ogg|m4a)$", source.name, re.IGNORECASE
+            ):
+                print(
+                    f"{Fore.YELLOW}Skipping {source} (unsupported file format){Style.RESET_ALL}"
+                )
+                continue
+            else:
+                batch.append(source)
+
+    return batch
+
+
 def estimate_tempo(
     source: Path, model_name: str = "cnn", log_results: bool = False
 ) -> Result | None:
@@ -69,29 +98,7 @@ def tempo():
         data = tomllib.load(f)
         source_path = data["tempo"]["source"]
 
-    # read the file's features
-    batch = []
-
-    if Path(source_path).is_file():
-        batch.append(Path(source_path))
-    else:
-
-        for source in Path(source_path).glob("*.*"):
-
-            if source.is_dir() or source.stem.startswith("."):
-                print(
-                    f"{Fore.YELLOW}Skipping {source} (not a valid audio file){Style.RESET_ALL}"
-                )
-                continue
-            elif not re.match(
-                r".*\.(wav|mp3|flac|ogg|m4a)$", source.name, re.IGNORECASE
-            ):
-                print(
-                    f"{Fore.YELLOW}Skipping {source} (unsupported file format){Style.RESET_ALL}"
-                )
-                continue
-            else:
-                batch.append(source)
+    batch = list_input_files(source_path)
 
     for source in batch:
         estimate_tempo(source, log_results=True)
@@ -106,31 +113,7 @@ def timestretch():
 
     target_tempo: float = float(data["timestretch"]["target_tempo"])
 
-    batch = []
-
-    if Path(source_path).is_file():
-        batch.append(Path(source_path))
-    else:
-        for source in Path(source_path).glob("*.*"):
-
-            if source.is_dir() or source.stem.startswith("."):
-                print(
-                    f"{Fore.YELLOW}Skipping {source} (not a valid audio file){Style.RESET_ALL}"
-                )
-                continue
-            elif not re.match(
-                r".*\.(wav|mp3|flac|ogg|m4a)$", source.name, re.IGNORECASE
-            ):
-                print(
-                    f"{Fore.YELLOW}Skipping {source} (unsupported file format){Style.RESET_ALL}"
-                )
-                continue
-            else:
-                batch.append(source)
-
-    print(
-        f"{Fore.GREEN}Processing {len(batch)} files for time-stretching...{Style.RESET_ALL}"
-    )
+    batch = list_input_files(source_path)
 
     for source in batch:
 
