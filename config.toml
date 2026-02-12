@@ -5,7 +5,9 @@
 # if it's a file, only that file will be processed
 # # supported audio files are wav|mp3|flac|ogg|m4a
 source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
-#source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
+#source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/Michael Jackson - Billie Jean (Official Video)_no_dr_bass_split_by_lalalai.wav"
+#source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/94"
+
 
 [timestretch]
 
@@ -17,12 +19,15 @@ target_tempo = 120.0
 # if it's a directory, all the files in it will be processed if they are supported audio files,
 # if it's a file, only that file will be processed
 # supported audio files are wav|mp3|flac|ogg|m4a
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm/Glenn Gould - Bach - Prelude in C minor, BWV 847 Sl-06.wav"
+#source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm/Glenn Gould - Bach - Prelude in C minor, BWV 847 Sl-06.wav"
+#source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/Michael Jackson - Billie Jean (Official Video)_bass_split_by_lalalai.wav"
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
 
 # the output must be a directory, 
 # the processed files will be saved in it 
 # they will be saved in a subdirectory named after the target tempo
-output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847"
+#output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
+output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/"
 
 
 
