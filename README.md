@@ -15,4 +15,4 @@ Example of use case:
 Configure things in the file `config.toml`
 
 * `poetry run timestretch` will timestrech the given files to the target tempo (`target_tempo`)
-* `poetry run tempo` will just give the tempos of the files located in the source directory 
+* `poetry run detect_tempo` will just give the tempos of the files located in the source directory 
