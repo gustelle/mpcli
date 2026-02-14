@@ -17,7 +17,6 @@ from pydub import AudioSegment
 from scipy.io import wavfile
 from tempocnn.classifier import TempoClassifier
 from tempocnn.feature import read_features
-from tqdm import tqdm
 
 from mpcli.entities.result import Result
 
@@ -126,6 +125,8 @@ def timestretch(
 
     batch = list_input_files(source_path)
 
+    output_format: str = data["timestretch"]["output_format"].lower()
+
     for source in batch:
 
         # estimate the global tempo
@@ -139,23 +140,12 @@ def timestretch(
             target_tempo = float(data["timestretch"]["target_tempo"])
             factor = target_tempo / result.tempo
 
-        # apply time stretch
-        transforms = [
-            {
-                "instance": TimeStretch(
-                    # min_rate=0.86, max_rate=0.86, method="signalsmith_stretch", p=1.0
-                    min_rate=factor,
-                    max_rate=factor,
-                    method="signalsmith_stretch",
-                    p=1,  # probability of applying the transformation
-                    leave_length_unchanged=False,  # keep the output length the same as input
-                ),
-                "num_runs": 1,
-                "name": "TimeStretchSignalsmithStretch",
-            },
-        ]
-
         samples, sample_rate = load_sound_file(source, sample_rate=None, mono=False)
+
+        print(
+            f"{Fore.BLUE}Processing '{source.name}': estimated tempo = {result.tempo} BPM, target tempo = {target_tempo} BPM, time stretch factor = {factor:.4f}, sample rate = {sample_rate} Hz{Style.RESET_ALL}"
+        )
+
         if len(samples.shape) == 2 and samples.shape[0] > samples.shape[1]:
             samples = samples.transpose()
 
@@ -164,71 +154,61 @@ def timestretch(
         output_dir = Path(output_dir) / "timestretch" / str(target_tempo)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        for transform in tqdm(transforms):
-            augmenter = transform["instance"]
+        # see https://iver56.github.io/audiomentations/waveform_transforms/time_stretch/
+        augmenter = TimeStretch(
+            min_rate=factor,
+            max_rate=factor,
+            method="signalsmith_stretch",
+            p=1,  # probability of applying the transformation
+            leave_length_unchanged=False,  # keep the output length the same as input
+        )
 
-            output_file_path = os.path.join(
-                output_dir,
-                f"{source.stem}_{target_tempo}.wav",
+        wav_output_path = os.path.join(
+            output_dir,
+            f"{source.stem}_{target_tempo}.wav",
+        )
+
+        if Path(wav_output_path).exists():
+            print(
+                f"{Fore.YELLOW}Output file '{wav_output_path}' already exists, overriding...{Style.RESET_ALL}"
             )
+            Path(wav_output_path).unlink()
 
-            if Path(output_file_path).exists():
-                print(
-                    f"{Fore.YELLOW}Output file '{output_file_path}' already exists, overriding...{Style.RESET_ALL}"
-                )
-                Path(output_file_path).unlink()
+        augmented_samples = augmenter(samples=samples, sample_rate=sample_rate)
 
-            augmented_samples = augmenter(samples=samples, sample_rate=sample_rate)
+        if len(augmented_samples.shape) == 2:
+            augmented_samples = augmented_samples.transpose()
 
-            if len(augmented_samples.shape) == 2:
-                augmented_samples = augmented_samples.transpose()
+        # alwzays export as wav, even if the output format is mp3,
+        wavfile.write(wav_output_path, rate=sample_rate, data=augmented_samples)
 
-            wavfile.write(output_file_path, rate=sample_rate, data=augmented_samples)
-
-        print(
-            f"{Fore.GREEN}Time-stretched '{source.name}' to {target_tempo} BPM and saved to '{output_file_path}'{Style.RESET_ALL}"
-        )
-
-
-@app.command()
-def convert():
-
-    with open("config.toml", "rb") as f:
-        data = tomllib.load(f)
-        source_path = data["convert"]["source"]
-        target_path = data["convert"]["output"]
-        source_format = data["convert"]["source_format"]
-        target_format = data["convert"]["output_format"]
-
-    batch = list_input_files(source_path, format=source_format)
-
-    output_dir = Path(target_path) / "converted" / target_format
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    for source in batch:
-        match source_format:
-            case "wav":
-                audio = AudioSegment.from_wav(source)
+        match output_format:
             case "mp3":
-                audio = AudioSegment.from_mp3(source)
-            case "flac":
-                audio = AudioSegment.from_file(source, format="flac")
-            case "ogg":
-                audio = AudioSegment.from_ogg(source)
-            case "m4a":
-                audio = AudioSegment.from_file(source, format="m4a")
-            case _:
-                print(
-                    f"{Fore.RED}Unsupported source format '{source_format}' for file '{source}'{Style.RESET_ALL}"
+                # load the wav file and export it as mp3
+                audio = AudioSegment.from_wav(wav_output_path)
+                mp3_output_path = os.path.join(
+                    output_dir,
+                    f"{source.stem}_{target_tempo}.mp3",
                 )
-                continue
-        audio.export(
-            os.path.join(
-                output_dir,
-                f"{source.stem}.{target_format}",
-            ),
-            format=target_format,
-        )
+
+                if Path(mp3_output_path).exists():
+                    print(
+                        f"{Fore.YELLOW}Output file '{mp3_output_path}' already exists, overriding...{Style.RESET_ALL}"
+                    )
+                    Path(mp3_output_path).unlink()
+
+                audio.export(mp3_output_path, format="mp3")
+
+                # remove the wav file
+                Path(wav_output_path).unlink()
+
+                print(
+                    f"{Fore.GREEN}Time-stretched '{source.name}' to {target_tempo} BPM and saved to '{mp3_output_path}'{Style.RESET_ALL}"
+                )
+            case "wav":
+                print(
+                    f"{Fore.GREEN}Time-stretched '{source.name}' to {target_tempo} BPM and saved to '{wav_output_path}'{Style.RESET_ALL}"
+                )
 
 
 if __name__ == "__main__":

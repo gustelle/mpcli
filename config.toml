@@ -19,7 +19,7 @@ target_tempo = 60.0
 # if it's a directory, all the files in it will be processed if they are supported audio files,
 # if it's a file, only that file will be processed
 # supported audio files are wav|mp3|flac|ogg|m4a
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/120.0/BWV 847 Sl-20_120.02.wav"
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/120.0/BWV 847 Sl-03_120.02.wav"
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/Michael Jackson - Billie Jean (Official Video)_bass_split_by_lalalai.wav"
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
 
@@ -29,17 +29,4 @@ source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/
 #output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/"
 
-
-
-[convert]
-# the source is either a directory or a file, 
-# if it's a directory, all the files in it will be processed if they are supported audio files,
-# if it's a file, only that file will be processed  
-# supported audio files are wav|mp3|flac|ogg|m4a
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/60.0"
-source_format = "wav"
-
-# the output must be a directory, 
-# the processed files will be saved in it
-output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/60.0"
-output_format = "mp3"
+output_format = "mp3" # wav|mp3
