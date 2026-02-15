@@ -26,7 +26,8 @@ colorama_init()
 
 
 def list_input_files(
-    source_path: str, format: Literal["*", "wav", "mp3", "flac", "ogg", "m4a"] = "*"
+    source_path: str | Path,
+    format: Literal["*", "wav", "mp3", "flac", "ogg", "m4a"] = "*",
 ) -> list[Path]:
 
     # read the file's features
@@ -181,20 +182,7 @@ def timestretch(
 
         match output_format:
             case "mp3":
-                # load the wav file and export it as mp3
-                audio = AudioSegment.from_wav(wav_output_path)
-                mp3_output_path = os.path.join(
-                    output_dir,
-                    f"{source.stem}_{target_tempo}.mp3",
-                )
-
-                if Path(mp3_output_path).exists():
-                    print(
-                        f"{Fore.YELLOW}Output file '{mp3_output_path}' already exists, overriding...{Style.RESET_ALL}"
-                    )
-                    Path(mp3_output_path).unlink()
-
-                audio.export(mp3_output_path, format="mp3")
+                _process_conversion(source_path, output_format, output_dir)
 
                 # remove the wav file
                 Path(wav_output_path).unlink()
@@ -206,6 +194,50 @@ def timestretch(
                 print(
                     f"{Fore.GREEN}Time-stretched '{source.name}' to {target_tempo} BPM and saved to '{wav_output_path}'{Style.RESET_ALL}"
                 )
+
+
+@app.command()
+def convert():
+    with open("config.toml", "rb") as f:
+        data = tomllib.load(f)
+        source_path = Path(data["convert"]["source"])
+
+    output_format: str = data["convert"]["output_format"].lower()
+    output_dir: Path = Path(data["convert"]["output"])
+
+    _process_conversion(source_path, output_format, output_dir)
+
+
+def _process_conversion(source_path: Path, output_format: str, output_dir: Path):
+
+    batch = list_input_files(source_path)
+
+    print(
+        f"{Fore.BLUE}Converting {len(batch)} files from '{source_path}' to {output_format.upper()} and saving to '{output_dir}'{Style.RESET_ALL}"
+    )
+
+    for source in batch:
+
+        audio = AudioSegment.from_file(source)
+
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        output_path = os.path.join(
+            output_dir,
+            f"{source.stem}.{output_format}",
+        )
+
+        if Path(output_path).exists():
+            print(
+                f"{Fore.YELLOW}Output file '{output_path}' already exists, overriding...{Style.RESET_ALL}"
+            )
+            Path(output_path).unlink()
+
+        audio.export(output_path, format=output_format)
+
+        print(
+            f"{Fore.GREEN}Converted '{source.name}' to {output_format.upper()} and saved to '{output_dir}'{Style.RESET_ALL}"
+        )
 
 
 if __name__ == "__main__":
