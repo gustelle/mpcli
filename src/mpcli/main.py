@@ -182,13 +182,13 @@ def timestretch(
 
         match output_format:
             case "mp3":
-                _process_conversion(source_path, output_format, output_dir)
+                _process_conversion(wav_output_path, output_format, output_dir)
 
                 # remove the wav file
                 Path(wav_output_path).unlink()
 
                 print(
-                    f"{Fore.GREEN}Time-stretched '{source.name}' to {target_tempo} BPM and saved to '{mp3_output_path}'{Style.RESET_ALL}"
+                    f"{Fore.GREEN}Time-stretched '{source.name}' to {target_tempo} BPM and saved to '{output_dir}'{Style.RESET_ALL}"
                 )
             case "wav":
                 print(

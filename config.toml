@@ -13,7 +13,7 @@ source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/_Drums/TS_NEON/TS_NEON_11
 
 # the target tempo in BPM,
 # must be a positive float,
-target_tempo = 240.0
+target_tempo = 100.0
 
 # the source is either a directory or a file, 
 # if it's a directory, all the files in it will be processed if they are supported audio files,
@@ -22,13 +22,13 @@ target_tempo = 240.0
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/120.0/BWV 847 Sl-03_120.02.wav"
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/Michael Jackson - Billie Jean (Official Video)_bass_split_by_lalalai.wav"
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/80bpm"
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/_Drums/TS_NEON/TS_NEON_118_drum_loop_grooves_nyc_big_kit_dumb_floor_tom_2_clean.wav"
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/Phrases"
 
 # the output must be a directory, 
 # the processed files will be saved in it 
 # they will be saved in a subdirectory named after the target tempo
 #output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean"
-output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/_Drums/TS_NEON"
+output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/Phrases"
 
 # define the output format, either wav or mp3, default is wav
 output_format = "mp3" # wav|mp3
