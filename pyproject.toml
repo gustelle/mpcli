@@ -30,7 +30,7 @@ dev = [
 ]
 
 [tool.poetry.scripts]
-detect_tempo = "mpcli.main:tempo"
+detect_tempo = "mpcli.main:detect_tempo"
 timestretch = "mpcli.main:timestretch"
 convert = "mpcli.main:convert"
 

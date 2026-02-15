@@ -59,14 +59,11 @@ def list_input_files(
     return batch
 
 
-def _estimate_tempo(
-    source: Path, model_name: str = "cnn", log_results: bool = False
-) -> Result | None:
+def _estimate_tempo(source: Path, model_name: str = "cnn") -> Result | None:
     """estimate the tempo of an audio file, and print the result in a human-readable format
 
     source: the path to the audio file, must be a valid audio file (wav|mp3|flac|ogg|m4a)
     model_name: the name of the model to use for tempo estimation, default is "cnn"
-    log_results: whether to print the results in a human-readable format, default is False
 
     """
 
@@ -81,14 +78,6 @@ def _estimate_tempo(
 
         # estimate the global tempo
         tempo = classifier.estimate_tempo(features, interpolate=True)
-        if log_results:
-            pprint(
-                {
-                    "file": source.name,
-                    "estimated_tempo": tempo,
-                },
-                indent=4,
-            )
 
         return Result(file=source.name, tempo=tempo)
 
@@ -106,7 +95,15 @@ def detect_tempo():
     batch = list_input_files(source_path)
 
     for source in batch:
-        _estimate_tempo(source, log_results=True)
+        r: Result = _estimate_tempo(source, log_results=True)
+
+        pprint(
+            {
+                "file": source.name,
+                "estimated_tempo": r.tempo if r is not None else None,
+            },
+            indent=4,
+        )
 
 
 @app.command()
