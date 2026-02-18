@@ -20,7 +20,7 @@ def execute_timestretch(
 
         # estimate the global tempo
         tempo_config = DetectTempoConfig(source=source)
-        result = execute_tempo_estimation(tempo_config)
+        result = next(execute_tempo_estimation(tempo_config))
 
         # compute the time stretch factor
         if config.ratio is not None:
@@ -38,8 +38,9 @@ def execute_timestretch(
         output_dir = config.output
         output_format = config.format
 
-        output_dir = Path(output_dir) / "timestretch" / str(target_tempo)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        if config.create_target_dir:
+            output_dir = Path(output_dir) / "timestretch" / str(target_tempo)
+            output_dir.mkdir(parents=True, exist_ok=True)
 
         # see https://iver56.github.io/audiomentations/waveform_transforms/time_stretch/
         augmenter = TimeStretch(
@@ -70,7 +71,7 @@ def execute_timestretch(
                     output=output_dir,
                     format=output_format,
                 )
-                execute_format_conversion(conversion_config)
+                next(execute_format_conversion(conversion_config))
 
                 # remove the wav file
                 wav_output_path.unlink()

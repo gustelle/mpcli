@@ -109,8 +109,3 @@ def convert():
 
 if __name__ == "__main__":
     app()
-    app()
-    app()
-    app()
-    app()
-    app()

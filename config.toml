@@ -10,11 +10,28 @@
 source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 
 [[timestretch]]
+# slice 2
 source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-02.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
 ratio = 1.04166666666667
+create_target_dir = false # store the output file in the same directory as the source file
 
+[[timestretch]]
+# slice 3
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-03.wav"
+output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+format = "mp3"
+ratio = 1.02040816326531
+create_target_dir = false # store the output file in the same directory as the source file
+
+[[timestretch]]
+# slice 4
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-04.wav"
+output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+format = "mp3"
+ratio = 1.04166666666667
+create_target_dir = false
 
 [convert]
 
