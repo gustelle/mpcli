@@ -26,10 +26,20 @@ def detect_tempo():
         data = tomllib.load(f)
         config: DetectTempoConfig = DetectTempoConfig(**data["detect_tempo"])
 
-    result = execute_tempo_estimation(config)
+    table = Table(title="Tempo Detection Results")
 
-    if result is not None:
-        print(f"File: {result.file}, Tempo: {result.tempo} BPM")
+    table.add_column("Source", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Tempo", style="magenta")
+
+    for result in execute_tempo_estimation(config):
+        if result is not None:
+            table.add_row(
+                f"{result.source_path}",
+                f"{result.tempo} BPM",
+            )
+
+    console = Console()
+    console.print(table)
 
 
 @app.command()
@@ -97,4 +107,6 @@ def convert():
 
 
 if __name__ == "__main__":
+    app()
+    app()
     app()
