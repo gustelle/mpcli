@@ -2,6 +2,7 @@
 # pylint: disable=missing-function-docstring
 import textwrap
 import tomllib
+from pathlib import Path
 
 import typer
 from colorama import init as colorama_init
@@ -34,7 +35,7 @@ def detect_tempo():
     for result in execute_tempo_estimation(config):
         if result is not None:
             table.add_row(
-                f"{result.source_path}",
+                f"{Path(result.source_path).name}",
                 f"{result.tempo} BPM",
             )
 
@@ -64,8 +65,8 @@ def timestretch():
                 for result in execute_timestretch(config):
                     if result is not None:
                         table.add_row(
-                            f"{config.source}",
-                            f"{result.target_path}",
+                            f"{Path(result.source_path).name}",
+                            f"{Path(result.target_path).name}",
                             str(result.target_tempo),
                         )
 
@@ -74,8 +75,8 @@ def timestretch():
             for result in execute_timestretch(config):
                 if result is not None:
                     table.add_row(
-                        f"{config.source}",
-                        f"{result.target_path}",
+                        f"{Path(result.source_path).name}",
+                        f"{Path(result.target_path).name}",
                         str(result.target_tempo),
                     )
 
@@ -107,6 +108,9 @@ def convert():
 
 
 if __name__ == "__main__":
+    app()
+    app()
+    app()
     app()
     app()
     app()
