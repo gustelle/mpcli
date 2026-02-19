@@ -24,11 +24,25 @@ def execute_timestretch(
 
         # compute the time stretch factor
         if config.ratio is not None:
-            factor = config.ratio
-            target_tempo = round(result.tempo * factor, 2)
+            target_rate = config.ratio
+            target_tempo = round(result.tempo * target_rate, 3)
         else:
             target_tempo = config.target_tempo
-            factor = target_tempo / result.tempo
+            target_rate = target_tempo / result.tempo
+
+        if target_rate == 1:
+            print(
+                f"Skipping {source} since the target tempo is the same as the original tempo ({result.tempo} BPM)"
+            )
+            continue
+        elif target_rate < 1:
+            min_rate = target_rate
+            max_rate = 1
+        else:
+            min_rate = 1
+            max_rate = target_rate
+
+        print(f"Time stretching using rates: {min_rate} / {max_rate}...")
 
         samples, sample_rate = load_sound_file(source, sample_rate=None, mono=False)
 
@@ -44,14 +58,16 @@ def execute_timestretch(
 
         # see https://iver56.github.io/audiomentations/waveform_transforms/time_stretch/
         augmenter = TimeStretch(
-            min_rate=factor,
-            max_rate=factor,
+            min_rate=min_rate,
+            max_rate=max_rate,
             method="signalsmith_stretch",
             p=1,  # probability of applying the transformation
             leave_length_unchanged=False,  # keep the output length the same as input
         )
 
-        wav_output_path = output_dir / f"{source.stem}_{target_tempo}.wav"
+        suffix = f"_{config.file_tag}" if config.file_tag else f"_{target_tempo}"
+
+        wav_output_path = output_dir / f"{source.stem}{suffix}.wav"
 
         if wav_output_path.exists():
             wav_output_path.unlink()
@@ -80,7 +96,5 @@ def execute_timestretch(
             source_path=str(source),
             original_tempo=result.tempo,
             target_tempo=target_tempo,
-            target_path=str(
-                output_dir / f"{source.stem}_{target_tempo}.{output_format}"
-            ),
+            target_path=str(output_dir / f"{source.stem}{suffix}.{output_format}"),
         )

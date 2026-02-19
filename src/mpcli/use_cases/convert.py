@@ -1,12 +1,10 @@
-from pathlib import Path
 from typing import Generator
 
 from pydub import AudioSegment
 
 from mpcli.entities.config import ConvertConfig
 from mpcli.entities.result import ConvertResult
-
-from ..repository.files import iter_sources
+from mpcli.repository.files import iter_sources
 
 
 def execute_format_conversion(
