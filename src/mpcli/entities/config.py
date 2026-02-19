@@ -10,7 +10,6 @@ class TimeStretchConfig:
     format: Literal["wav", "mp3"]
     target_tempo: Optional[float] = None
     ratio: Optional[float] = None
-    create_target_dir: bool = True
     filename: Optional[str] = None
 
     def __init__(self, **kwargs):
@@ -21,7 +20,6 @@ class TimeStretchConfig:
         self.format = kwargs.get("format", "wav")
         self.target_tempo = kwargs.get("target_tempo")
         self.ratio = kwargs.get("ratio")
-        self.create_target_dir = kwargs.get("create_target_dir", True)
         self.filename = kwargs.get("filename")
 
         # check format validity

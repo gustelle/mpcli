@@ -52,9 +52,8 @@ def execute_timestretch(
         output_dir = config.output
         output_format = config.format
 
-        if config.create_target_dir:
-            output_dir = Path(output_dir) / "timestretch" / str(target_tempo)
-            output_dir.mkdir(parents=True, exist_ok=True)
+        # make sure the output directory exists
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         # see https://iver56.github.io/audiomentations/waveform_transforms/time_stretch/
         augmenter = TimeStretch(
