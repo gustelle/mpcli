@@ -9,126 +9,141 @@
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Bach/BWV 847/timestretch/94"
 source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 
+# [[timestretch]]
+# # slice 2
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-02.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.04166666666667
+# max_rate = 1.04166666666667
+# filename = "Sonata_C#min_02_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-02_50.5bpm.mp3"
+
+# [[timestretch]]
+# # slice 3
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-03.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.02040816326531
+# max_rate = 1.02040816326531
+# filename = "Sonata_C#min_03_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-03_96bpm.mp3"
+
+# [[timestretch]]
+# # slice 4
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-04.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.04166666666667
+# max_rate = 1.04166666666667
+# filename = "Sonata_C#min_04_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-04_94bpm.mp3"
+
+
+# [[timestretch]]
+# # slice 5
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-05.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.09565217391304
+# max_rate = 1.09565217391304
+# filename = "Sonata_C#min_05_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-05_94bpm.mp3"
+
+# [[timestretch]]
+# # slice 6
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-06.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.19047619047619
+# max_rate = 1.19047619047619
+# filename = "Sonata_C#min_06_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-06_94bpm.mp3"
+
+# [[timestretch]]
+# # slice 7
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-07.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.13636363636364
+# max_rate = 1.13636363636364
+# filename = "Sonata_C#min_07_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-07_94bpm.mp3"
+
+# [[timestretch]]
+# # slice 8
+# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-08.wav"
+# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+# format = "mp3"
+# min_rate = 1.11555555555556
+# max_rate = 1.11555555555556
+# filename = "Sonata_C#min_08_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-08_94bpm.mp3"
+
 [[timestretch]]
-# slice 2
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-02.wav"
+# slice 9
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-09.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.04166666666667
-filename = "Sonata_C#min_02_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-02_50.5bpm.mp3"
+min_rate = 1.21428571428571
+max_rate = 1.21428571428571
+filename = "Sonata_C#min_09_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-09_94bpm.mp3"
 
 [[timestretch]]
-# slice 3
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-03.wav"
+# slice 10
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-10.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.02040816326531
-filename = "Sonata_C#min_03_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-03_96bpm.mp3"
+min_rate = 1.08913043478261
+max_rate = 1.08913043478261
+filename = "Sonata_C#min_10_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-10_94bpm.mp3"
 
 [[timestretch]]
-# slice 4
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-04.wav"
+# slice 11
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-11.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.03125
-filename = "Sonata_C#min_04_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-04_94bpm.mp3"
-
+min_rate = 1.15909090909091
+max_rate = 1.15909090909091
+filename = "Sonata_C#min_11_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-11_94bpm.mp3"
 
 [[timestretch]]
-# slice 5
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-05.wav"
+# slice 12
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-12.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.06521739130435
-filename = "Sonata_C#min_05_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-05_94bpm.mp3"
+min_rate = 1.18604651162791
+max_rate = 1.18604651162791
+filename = "Sonata_C#min_12_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-12_94bpm.mp3"
 
 [[timestretch]]
-# slice 6
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-06.wav"
+# slice 13
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-13.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.16666666666667
-filename = "Sonata_C#min_06_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-06_94bpm.mp3"
+min_rate = 1.24390243902439
+max_rate = 1.24390243902439
+filename = "Sonata_C#min_13_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-13_94bpm.mp3"
 
 [[timestretch]]
-# slice 7
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-07.wav"
+# slice 14
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-14.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.11363636363636
-filename = "Sonata_C#min_07_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-07_94bpm.mp3"
+min_rate = 1.28140703517588
+max_rate = 1.28140703517588
+filename = "Sonata_C#min_14_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-14_94bpm.mp3"
 
 [[timestretch]]
-# slice 8
-source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-08.wav"
+# slice 15
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-15.wav"
 output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
 format = "mp3"
-ratio = 1.11111111111111
-filename = "Sonata_C#min_08_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-08_94bpm.mp3"
+min_rate = 1.25925925925926
+max_rate = 1.25925925925926
+filename = "Sonata_C#min_15_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-15_94bpm.mp3"
 
-# [[timestretch]]
-# # slice 9
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-09.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.19047619047619
-# filename = "Sonata_C#min_09_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-09_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 10
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-10.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.08695652173913
-# filename = "Sonata_C#min_10_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-10_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 11
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-11.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.13636363636364
-# filename = "Sonata_C#min_11_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-11_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 12
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-12.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.16279069767442
-# filename = "Sonata_C#min_12_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-12_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 13
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-13.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.21951219512195
-# filename = "Sonata_C#min_13_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-13_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 14
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-14.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.25628140703518
-# filename = "Sonata_C#min_14_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-14_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 15
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-15.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.23456790123457
-# filename = "Sonata_C#min_15_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-15_94bpm.mp3"
-
-# [[timestretch]]
-# # slice 16
-# source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-16.wav"
-# output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
-# format = "mp3"
-# ratio = 1.16822429906542
-# filename = "Sonata_C#min_16_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-16_94bpm.mp3"
+[[timestretch]]
+# slice 16
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-16.wav"
+output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor/By Birenboim/Main/"
+format = "mp3"
+min_rate = 1.16822429906542
+max_rate = 1.16822429906542
+filename = "Sonata_C#min_16_50bpm" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-16_94bpm.mp3"
 
 # [[timestretch]]
 # # slice 17

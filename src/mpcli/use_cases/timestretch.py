@@ -23,24 +23,21 @@ def execute_timestretch(
         result = next(execute_tempo_estimation(tempo_config))
 
         # compute the time stretch factor
-        if config.ratio is not None:
-            target_rate = config.ratio
-            target_tempo = round(result.tempo * target_rate, 3)
+        if config.min_rate != 1 or config.max_rate != 1:
+            min_rate = config.min_rate
+            max_rate = config.max_rate
+            # take the average of min_rate and max_rate to compute the target tempo for naming purposes
+            target_tempo = round(result.tempo * (min_rate + max_rate) / 2, 3)
         else:
             target_tempo = config.target_tempo
-            target_rate = target_tempo / result.tempo
+            min_rate = target_tempo / result.tempo
+            max_rate = target_tempo / result.tempo
 
-        if target_rate == 1:
+        if min_rate == 1 and max_rate == 1:
             print(
                 f"Skipping {source} since the target tempo is the same as the original tempo ({result.tempo} BPM)"
             )
             continue
-        elif target_rate < 1:
-            min_rate = target_rate
-            max_rate = 1
-        else:
-            min_rate = 1
-            max_rate = target_rate
 
         print(f"Time stretching using rates: {min_rate} / {max_rate}...")
 
