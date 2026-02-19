@@ -65,9 +65,9 @@ def execute_timestretch(
             leave_length_unchanged=False,  # keep the output length the same as input
         )
 
-        suffix = f"_{config.file_tag}" if config.file_tag else f"_{target_tempo}"
+        filename = config.filename or f"{source.stem}_{target_tempo}bpm"
 
-        wav_output_path = output_dir / f"{source.stem}{suffix}.wav"
+        wav_output_path = output_dir / f"{filename}.wav"
 
         if wav_output_path.exists():
             wav_output_path.unlink()
@@ -96,5 +96,5 @@ def execute_timestretch(
             source_path=str(source),
             original_tempo=result.tempo,
             target_tempo=target_tempo,
-            target_path=str(output_dir / f"{source.stem}{suffix}.{output_format}"),
+            target_path=str(output_dir / f"{filename}.{output_format}"),
         )
