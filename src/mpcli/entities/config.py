@@ -15,6 +15,12 @@ class TimeStretchConfig:
 
     def __init__(self, **kwargs):
 
+        if kwargs.get("source") is None:
+            raise ValueError("Source file must be provided")
+
+        if kwargs.get("output") is None:
+            raise ValueError("Output directory must be provided")
+
         # force path conversion to Path objects
         self.source = Path(kwargs.get("source"))
         self.output = Path(kwargs.get("output"))
@@ -22,7 +28,7 @@ class TimeStretchConfig:
         self.target_tempo = kwargs.get("target_tempo")
         self.min_rate = kwargs.get("min_rate", 1.0)
         self.max_rate = kwargs.get("max_rate", 1.0)
-        self.filename = kwargs.get("filename")
+        self.filename = kwargs.get("filename", None)
 
         # check format validity
         if self.format not in ["wav", "mp3"]:
