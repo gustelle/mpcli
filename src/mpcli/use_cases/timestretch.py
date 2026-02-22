@@ -14,6 +14,11 @@ from mpcli.use_cases.tempo import execute_tempo_estimation
 
 
 def _compute_filename(config: TimeStretchConfig, estimate: TempoResult) -> str:
+    """
+    TODO:
+    - make this a repository function that can be re-used across use cases
+    - make parametrization of the filename more flexible, e.g. by allowing the user to specify a custom template for the filename, using jinja2 syntax, with access to all the fields of the config and the tempo estimate.
+    """
 
     environment = jinja2.Environment()
 
@@ -28,8 +33,6 @@ def _compute_filename(config: TimeStretchConfig, estimate: TempoResult) -> str:
         filename_template = "{{ source.stem }}_{{ tempo_min }}-{{ tempo_max }}_BPM"
 
     template = environment.from_string(filename_template)
-
-    print(f"Computing filename using template: {filename_template}")
 
     return template.render(
         **dataclasses.asdict(config), tempo_min=tempo_min, tempo_max=tempo_max

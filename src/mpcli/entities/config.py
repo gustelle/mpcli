@@ -3,8 +3,18 @@ from pathlib import Path
 from typing import Literal, Optional
 
 
+class ConfigError(ValueError):
+    pass
+
+
 @dataclass
 class TimeStretchConfig:
+    """Controls are done here, among others:
+    - if min_rate is provided but not max_rate, max_rate is set to 1.0 (no time stretch)
+    - if max_rate is provided but not min_rate, min_rate is set to 1.0 (no time stretch)
+
+    """
+
     source: Path
     output: Path
     format: Literal["wav", "mp3"]
@@ -16,23 +26,23 @@ class TimeStretchConfig:
     def __init__(self, **kwargs):
 
         if kwargs.get("source") is None:
-            raise ValueError("Source file must be provided")
+            raise ConfigError("Source file must be provided")
 
         if kwargs.get("output") is None:
-            raise ValueError("Output directory must be provided")
+            raise ConfigError("Output directory must be provided")
 
         # force path conversion to Path objects
         self.source = Path(kwargs.get("source"))
         self.output = Path(kwargs.get("output"))
         self.format = kwargs.get("format", "wav")
         self.target_tempo = kwargs.get("target_tempo")
-        self.min_rate = kwargs.get("min_rate", 1.0)
-        self.max_rate = kwargs.get("max_rate", 1.0)
+        self.min_rate = kwargs.get("min_rate", None)
+        self.max_rate = kwargs.get("max_rate", None)
         self.filename = kwargs.get("filename", None)
 
         # check format validity
         if self.format not in ["wav", "mp3"]:
-            raise ValueError(
+            raise ConfigError(
                 f"Invalid format: {self.format}. Supported formats are wav and mp3."
             )
 
@@ -41,16 +51,31 @@ class TimeStretchConfig:
             and self.min_rate is None
             and self.max_rate is None
         ):
-            raise ValueError(
+            raise ConfigError(
                 "Either target_tempo or min_rate/max_rate must be provided"
             )
 
         if self.target_tempo is not None and (
             self.min_rate is not None or self.max_rate is not None
         ):
-            raise ValueError(
+            raise ConfigError(
                 "Only one of target_tempo or min_rate/max_rate can be provided"
             )
+
+        if (
+            self.min_rate is not None
+            and self.max_rate is not None
+            and self.min_rate > self.max_rate
+        ):
+            raise ConfigError("min_rate cannot be greater than max_rate")
+
+        # set max_rate to 1.0 if min_rate is provided but not max_rate
+        if self.min_rate is not None and self.max_rate is None:
+            self.max_rate = 1.0
+
+        # set min_rate to 1.0 if max_rate is provided but not min_rate
+        if self.max_rate is not None and self.min_rate is None:
+            self.min_rate = 1.0
 
 
 @dataclass
@@ -68,7 +93,7 @@ class ConvertConfig:
 
         # check format validity
         if self.format not in ["wav", "mp3"]:
-            raise ValueError(
+            raise ConfigError(
                 f"Invalid format: {self.format}. Supported formats are wav and mp3."
             )
 
@@ -80,4 +105,5 @@ class DetectTempoConfig:
     def __init__(self, **kwargs):
 
         # force path conversion to Path objects
+        self.source = Path(kwargs.get("source"))
         self.source = Path(kwargs.get("source"))
