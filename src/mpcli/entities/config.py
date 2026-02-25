@@ -106,4 +106,25 @@ class DetectTempoConfig:
 
         # force path conversion to Path objects
         self.source = Path(kwargs.get("source"))
+
+
+@dataclass
+class NormalizeConfig:
+    source: Path
+    output: Path
+    lufs: float
+    format: Literal["wav", "mp3"]
+
+    def __init__(self, **kwargs):
+
+        # force path conversion to Path objects
         self.source = Path(kwargs.get("source"))
+        self.output = Path(kwargs.get("output"))
+        self.lufs = kwargs.get("lufs", -14.0)
+        self.format = kwargs.get("format", "wav")
+
+        # check format validity
+        if self.format not in ["wav", "mp3"]:
+            raise ConfigError(
+                f"Invalid format: {self.format}. Supported formats are wav and mp3."
+            )

@@ -34,6 +34,7 @@ dev = [
 detect_tempo = "mpcli.main:detect_tempo"
 timestretch = "mpcli.main:timestretch"
 convert = "mpcli.main:convert"
+normalize = "mpcli.main:normalize"
 
 
 

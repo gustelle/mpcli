@@ -33,3 +33,15 @@ class ConvertResult:
     def __init__(self, **kwargs):
         self.source_path = kwargs.get("source_path")
         self.target_path = kwargs.get("target_path")
+
+
+@dataclass
+class NormalizeResult:
+    source_path: str
+    target_path: str
+    lufs: float
+
+    def __init__(self, **kwargs):
+        self.source_path = kwargs.get("source_path")
+        self.target_path = kwargs.get("target_path")
+        self.lufs = kwargs.get("lufs")

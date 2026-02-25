@@ -12,9 +12,11 @@ from mpcli.entities.config import (
     ConfigError,
     ConvertConfig,
     DetectTempoConfig,
+    NormalizeConfig,
     TimeStretchConfig,
 )
 from mpcli.use_cases.convert import execute_format_conversion
+from mpcli.use_cases.normalization import execute_normalization
 from mpcli.use_cases.tempo import execute_tempo_estimation
 from mpcli.use_cases.timestretch import execute_timestretch
 
@@ -106,8 +108,33 @@ def convert():
     for result in execute_format_conversion(config):
         if result is not None:
             table.add_row(
-                textwrap.shorten(f"{result.source_path}", width=30),
-                textwrap.shorten(f"{result.target_path}", width=30),
+                result.source_path,
+                result.target_path,
+            )
+
+    console = Console()
+    console.print(table)
+
+
+@app.command()
+def normalize():
+
+    with open("config.toml", "rb") as f:
+        data = tomllib.load(f)
+        config: NormalizeConfig = NormalizeConfig(**data["normalize"])
+
+    table = Table(title="Normalization Results")
+
+    table.add_column("Source", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Target", style="magenta")
+    table.add_column("LUFS", justify="right", style="green")
+
+    for result in execute_normalization(config):
+        if result is not None:
+            table.add_row(
+                result.source_path,
+                result.target_path,
+                str(result.lufs),
             )
 
     console = Console()

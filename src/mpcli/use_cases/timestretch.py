@@ -4,12 +4,10 @@ from typing import Generator
 import jinja2
 from audiomentations import TimeStretch
 from audiomentations.core.audio_loading_utils import load_sound_file
-from scipy.io import wavfile
 
-from mpcli.entities.config import ConvertConfig, DetectTempoConfig, TimeStretchConfig
+from mpcli.entities.config import DetectTempoConfig, TimeStretchConfig
 from mpcli.entities.result import TempoResult, TimeStretchResult
-from mpcli.repository.files import iter_sources
-from mpcli.use_cases.convert import execute_format_conversion
+from mpcli.repository.audio_file import iter_sources, save_audio_file
 from mpcli.use_cases.tempo import execute_tempo_estimation
 
 
@@ -17,7 +15,6 @@ def _compute_filename(config: TimeStretchConfig, estimate: TempoResult) -> str:
     """
     TODO:
     - make this a repository function that can be re-used across use cases
-    - make parametrization of the filename more flexible, e.g. by allowing the user to specify a custom template for the filename, using jinja2 syntax, with access to all the fields of the config and the tempo estimate.
     """
 
     environment = jinja2.Environment()
@@ -88,18 +85,7 @@ def execute_timestretch(
             )
             continue
 
-        print(f"Time stretching using rates: {min_rate} / {max_rate}...")
-
         samples, sample_rate = load_sound_file(source, sample_rate=None, mono=False)
-
-        if len(samples.shape) == 2 and samples.shape[0] > samples.shape[1]:
-            samples = samples.transpose()
-
-        output_dir = config.output
-        output_format = config.format
-
-        # make sure the output directory exists
-        output_dir.mkdir(parents=True, exist_ok=True)
 
         # see https://iver56.github.io/audiomentations/waveform_transforms/time_stretch/
         augmenter = TimeStretch(
@@ -112,34 +98,22 @@ def execute_timestretch(
 
         filename = _compute_filename(config, estimate)
 
-        wav_output_path = output_dir / f"{filename}.wav"
-
-        if wav_output_path.exists():
-            wav_output_path.unlink()
-
         augmented_samples = augmenter(samples=samples, sample_rate=sample_rate)
 
         if len(augmented_samples.shape) == 2:
             augmented_samples = augmented_samples.transpose()
 
-        # always export as wav, even if the output format is mp3,
-        wavfile.write(wav_output_path, rate=sample_rate, data=augmented_samples)
-
-        match output_format:
-            case "mp3":
-                conversion_config = ConvertConfig(
-                    source=wav_output_path,
-                    output=output_dir,
-                    format=output_format,
-                )
-                next(execute_format_conversion(conversion_config))
-
-                # remove the wav file
-                wav_output_path.unlink()
+        result = save_audio_file(
+            output_dir=config.output,
+            filename=filename,
+            samples=augmented_samples,
+            sample_rate=sample_rate,
+            format=config.format,
+        )
 
         yield TimeStretchResult(
             source_path=str(source),
             original_tempo=estimate.tempo,
             target_tempo=target_tempo,
-            target_path=str(output_dir / f"{filename}.{output_format}"),
+            target_path=str(result.target_path),
         )

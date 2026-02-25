@@ -6,7 +6,7 @@ from tempocnn.feature import read_features
 
 from mpcli.entities.config import DetectTempoConfig
 from mpcli.entities.result import TempoResult
-from mpcli.repository.files import iter_sources
+from mpcli.repository.audio_file import iter_sources
 
 
 def execute_tempo_estimation(

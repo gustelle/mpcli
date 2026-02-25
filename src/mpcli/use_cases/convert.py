@@ -1,10 +1,8 @@
 from typing import Generator
 
-from pydub import AudioSegment
-
 from mpcli.entities.config import ConvertConfig
 from mpcli.entities.result import ConvertResult
-from mpcli.repository.files import iter_sources
+from mpcli.repository.audio_file import iter_sources, load_audio_file, save_audio_file
 
 
 def execute_format_conversion(
@@ -13,23 +11,12 @@ def execute_format_conversion(
 
     for source in iter_sources(config.source):
 
-        print(f"Converting {source} to {config.format} format...")
+        audio_data, sr = load_audio_file(source)
 
-        audio = AudioSegment.from_file(source)
-
-        output_dir = config.output
-        output_format = config.format
-
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        output_path = output_dir / f"{source.stem}.{output_format}"
-
-        if output_path.exists():
-            output_path.unlink()
-
-        audio.export(output_path, format=output_format)
-
-        yield ConvertResult(
-            source_path=str(source),
-            target_path=str(output_path),
+        yield save_audio_file(
+            output_dir=config.output,
+            filename=source.stem,
+            samples=audio_data,
+            sample_rate=sr,
+            format=config.format,
         )
