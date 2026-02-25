@@ -1,6 +1,5 @@
 # pylint: disable=missing-module-docstring
 # pylint: disable=missing-function-docstring
-import textwrap
 import tomllib
 from pathlib import Path
 
