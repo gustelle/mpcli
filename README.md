@@ -1,8 +1,10 @@
 # Music Production Client
 
 This tool provides the followins services:
-1. it enables to estimate the tempo of a set of files located in a directory
-1. it enables to convert a set of files located in a directory to a given BPM
+1. estimate the tempo of a set of files located in a directory
+2. timestretch a set of files located in a directory to a given BPM
+3. convert from an audio format to another 
+4. normalize an audio file to a given LUFS 
 
 Configuration is done in the file `config.toml`
 
@@ -16,3 +18,5 @@ Configure things in the file `config.toml`
 
 * `poetry run timestretch` will timestrech the given files to the target tempo (`target_tempo`)
 * `poetry run detect_tempo` will just give the tempos of the files located in the source directory 
+* `poetry run convert` 
+* `poetry run normalize` 
