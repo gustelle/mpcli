@@ -3,7 +3,7 @@ name = "mpcli"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "gustelle",email = "guillaume.patin@gmail.com"}
+    {name = "gustelle"}
 ]
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
@@ -37,6 +37,4 @@ detect_tempo = "mpcli.main:detect_tempo"
 timestretch = "mpcli.main:timestretch"
 convert = "mpcli.main:convert"
 normalize = "mpcli.main:normalize"
-
-
 

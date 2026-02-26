@@ -42,4 +42,3 @@ def execute_tempo_estimation(
 
         except audioread.exceptions.NoBackendError as e:
             raise ValueError(f"Error processing {source}: {e}")
-            raise ValueError(f"Error processing {source}: {e}")

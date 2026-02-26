@@ -7,7 +7,7 @@ from audiomentations.core.audio_loading_utils import load_sound_file
 from pydub import AudioSegment
 from scipy.io import wavfile
 
-from mpcli.entities.result import ConvertResult
+from src.mpcli.entities.result import ConvertResult
 
 
 def iter_sources(
