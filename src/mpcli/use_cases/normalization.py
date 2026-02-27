@@ -36,6 +36,6 @@ def execute_normalization(
 
         yield NormalizeResult(
             source_path=str(source),
-            target_path=str(audio.target_path),
+            target_path=str(audio.path),
             lufs=config.lufs,
         )

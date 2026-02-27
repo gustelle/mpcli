@@ -115,5 +115,5 @@ def execute_timestretch(
             source_path=str(source),
             original_tempo=estimate.tempo,
             target_tempo=target_tempo,
-            target_path=str(result.target_path),
+            target_path=str(result.path),
         )

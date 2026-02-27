@@ -7,8 +7,11 @@ from audiomentations.core.audio_loading_utils import load_sound_file
 from pydub import AudioSegment
 from scipy.io import wavfile
 
-from mpcli.repository.exceptions import AudioFileNotFoundError, InvalidAudioFileError
-from src.mpcli.entities.result import ConvertResult
+from src.mpcli.entities.result import AudioFileResult
+from src.mpcli.repository.exceptions import (
+    AudioFileNotFoundError,
+    InvalidAudioFileError,
+)
 
 
 def iter_sources(
@@ -46,26 +49,29 @@ def save_audio_file(
     samples: np.ndarray,
     sample_rate: int,
     format: Literal["wav", "mp3"] = "wav",
-) -> ConvertResult:
+) -> AudioFileResult:
     """dump the audio file as a numpy array, for debugging purposes"""
+
+    if format not in ["wav", "mp3"]:
+        raise ValueError(f"Unsupported audio format '{format}'")
 
     if not output_dir.exists():
         output_dir.mkdir(parents=True, exist_ok=True)
 
-    wav_output_path = output_dir / f"{filename}.wav"
+    output_path = output_dir / f"{filename}.wav"
 
-    if wav_output_path.exists():
-        wav_output_path.unlink()
+    if output_path.exists():
+        output_path.unlink()
 
     # always export as wav, even if the output format is mp3,
-    wavfile.write(wav_output_path, rate=sample_rate, data=samples)
+    wavfile.write(output_path, rate=sample_rate, data=samples)
 
     match format:
         case "mp3":
 
-            audio = AudioSegment.from_file(wav_output_path)
+            audio = AudioSegment.from_file(output_path)
 
-            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path.unlink()
 
             output_path = output_dir / f"{filename}.{format}"
 
@@ -74,11 +80,10 @@ def save_audio_file(
 
             audio.export(output_path, format=format)
 
-            wav_output_path.unlink()
-
-    return ConvertResult(
-        source_path=str(wav_output_path),
-        target_path=str(output_path),
+    return AudioFileResult(
+        path=str(output_path),
+        format=format,
+        sample_rate=sample_rate,
     )
 
 

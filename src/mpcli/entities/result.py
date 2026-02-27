@@ -36,6 +36,18 @@ class ConvertResult:
 
 
 @dataclass
+class AudioFileResult:
+    path: str
+    format: str
+    sample_rate: int
+
+    def __init__(self, **kwargs):
+        self.path = kwargs.get("path")
+        self.format = kwargs.get("format")
+        self.sample_rate = kwargs.get("sample_rate")
+
+
+@dataclass
 class NormalizeResult:
     source_path: str
     target_path: str

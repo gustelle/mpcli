@@ -13,10 +13,15 @@ def execute_format_conversion(
 
         audio_data, sr = load_audio_file(source)
 
-        yield save_audio_file(
+        result = save_audio_file(
             output_dir=config.output,
             filename=source.stem,
             samples=audio_data,
             sample_rate=sr,
             format=config.format,
+        )
+
+        yield ConvertResult(
+            source_path=str(source),
+            target_path=str(result.path),
         )
