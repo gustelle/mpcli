@@ -1,10 +1,13 @@
 from typing import Generator
 
-from audiomentations.augmentations.loudness_normalization import LoudnessNormalization
-
-from mpcli.entities.config import NormalizeConfig
-from mpcli.entities.result import NormalizeResult
-from mpcli.repository.audio_file import iter_sources, load_audio_file, save_audio_file
+from src.mpcli.entities.config import NormalizeConfig
+from src.mpcli.entities.result import NormalizeResult
+from src.mpcli.repository.audio_file import (
+    iter_sources,
+    load_audio_file,
+    save_audio_file,
+)
+from src.mpcli.repository.audio_transform import normalize_loudness
 
 
 def execute_normalization(
@@ -13,23 +16,14 @@ def execute_normalization(
 
     for source in iter_sources(config.source):
 
-        augmenter = LoudnessNormalization(
-            min_lufs=config.lufs,
-            max_lufs=config.lufs,
-            p=1,  # probability of applying the transformation
-        )
-
         samples, sample_rate = load_audio_file(source)
 
-        augmented_samples = augmenter(samples=samples, sample_rate=sample_rate)
-
-        if len(augmented_samples.shape) == 2:
-            augmented_samples = augmented_samples.transpose()
+        samples = normalize_loudness(samples, sample_rate, config.lufs)
 
         audio = save_audio_file(
             output_dir=config.output,
             filename=source.stem,
-            samples=augmented_samples,
+            samples=samples,
             sample_rate=sample_rate,
             format=config.format,
         )

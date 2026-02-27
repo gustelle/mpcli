@@ -2,13 +2,16 @@ import dataclasses
 from typing import Generator
 
 import jinja2
-from audiomentations import TimeStretch
-from audiomentations.core.audio_loading_utils import load_sound_file
 
-from mpcli.entities.config import DetectTempoConfig, TimeStretchConfig
-from mpcli.entities.result import TempoResult, TimeStretchResult
-from mpcli.repository.audio_file import iter_sources, save_audio_file
-from mpcli.use_cases.tempo import execute_tempo_estimation
+from src.mpcli.entities.config import DetectTempoConfig, TimeStretchConfig
+from src.mpcli.entities.result import TempoResult, TimeStretchResult
+from src.mpcli.repository.audio_file import (
+    iter_sources,
+    load_audio_file,
+    save_audio_file,
+)
+from src.mpcli.repository.audio_transform import time_stretch
+from src.mpcli.use_cases.tempo import execute_tempo_estimation
 
 
 def _compute_filename(config: TimeStretchConfig, estimate: TempoResult) -> str:
@@ -85,23 +88,11 @@ def execute_timestretch(
             )
             continue
 
-        samples, sample_rate = load_sound_file(source, sample_rate=None, mono=False)
-
-        # see https://iver56.github.io/audiomentations/waveform_transforms/time_stretch/
-        augmenter = TimeStretch(
-            min_rate=min_rate,
-            max_rate=max_rate,
-            method="signalsmith_stretch",
-            p=1,  # probability of applying the transformation
-            leave_length_unchanged=False,  # keep the output length the same as input
-        )
-
         filename = _compute_filename(config, estimate)
 
-        augmented_samples = augmenter(samples=samples, sample_rate=sample_rate)
+        samples, sample_rate = load_audio_file(source)
 
-        if len(augmented_samples.shape) == 2:
-            augmented_samples = augmented_samples.transpose()
+        augmented_samples = time_stretch(samples, sample_rate, min_rate, max_rate)
 
         result = save_audio_file(
             output_dir=config.output,
