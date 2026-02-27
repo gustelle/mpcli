@@ -1,9 +1,11 @@
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
+import numpy as np
 import pytest
 
-from src.mpcli.repository.audio_file import iter_sources
+from mpcli.repository.exceptions import AudioFileNotFoundError, InvalidAudioFileError
+from src.mpcli.repository.audio_file import iter_sources, load_audio_file
 
 
 def test_iter_sources_valid_file():
@@ -68,3 +70,23 @@ def test_iter_sources_directory_with_format_filter():
         sources = list(iter_sources(tmp_path, "wav"))
         assert len(sources) == 1
         assert str(sources[0]) == str(audio_file1)
+
+
+def test_load_audio_file_non_existent_file():
+    with pytest.raises(
+        AudioFileNotFoundError, match="Audio file 'non_existent_file.wav' not found"
+    ):
+        load_audio_file("non_existent_file.wav")
+
+
+def test_load_audio_file_invalid_file():
+    with pytest.raises(InvalidAudioFileError, match="Error loading audio file"):
+        f = Path(__file__).parent.parent / "assets/invalid_audio.txt"
+        load_audio_file(f)
+
+
+def test_load_audio_file_valid_file():
+    f = Path(__file__).parent.parent / "assets/valid_audio.wav"
+    samples, sample_rate = load_audio_file(f)
+    assert isinstance(samples, np.ndarray) and samples.shape[0] == 2
+    assert isinstance(sample_rate, int) and sample_rate == 44100

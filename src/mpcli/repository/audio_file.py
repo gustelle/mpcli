@@ -7,6 +7,7 @@ from audiomentations.core.audio_loading_utils import load_sound_file
 from pydub import AudioSegment
 from scipy.io import wavfile
 
+from mpcli.repository.exceptions import AudioFileNotFoundError, InvalidAudioFileError
 from src.mpcli.entities.result import ConvertResult
 
 
@@ -89,9 +90,14 @@ def load_audio_file(source: str | Path) -> tuple[np.ndarray, int]:
     Returns:
         tuple[np.ndarray, int]: A tuple containing the audio samples as a numpy array and the sample rate as an integer.
     """
-    samples, sample_rate = load_sound_file(source, sample_rate=None, mono=False)
+    try:
+        samples, sample_rate = load_sound_file(source, sample_rate=None, mono=False)
 
-    if len(samples.shape) == 2 and samples.shape[0] > samples.shape[1]:
-        samples = samples.transpose()
+        if len(samples.shape) == 2 and samples.shape[0] > samples.shape[1]:
+            samples = samples.transpose()
 
-    return samples, sample_rate
+        return samples, sample_rate
+    except FileNotFoundError:
+        raise AudioFileNotFoundError(f"Audio file '{source}' not found")
+    except Exception as e:
+        raise InvalidAudioFileError(f"Error loading audio file '{source}': {e}")
