@@ -3,9 +3,9 @@ from pathlib import Path
 from typing import Generator, Literal
 
 import numpy as np
+import soundfile as sf
+from audiomentations import Mp3Compression
 from audiomentations.core.audio_loading_utils import load_sound_file
-from pydub import AudioSegment
-from scipy.io import wavfile
 
 from src.mpcli.entities.result import AudioFileResult
 from src.mpcli.repository.exceptions import (
@@ -52,33 +52,43 @@ def save_audio_file(
 ) -> AudioFileResult:
     """dump the audio file as a numpy array, for debugging purposes"""
 
-    if format not in ["wav", "mp3"]:
-        raise ValueError(f"Unsupported audio format '{format}'")
-
     if not output_dir.exists():
         output_dir.mkdir(parents=True, exist_ok=True)
-
-    output_path = output_dir / f"{filename}.wav"
-
-    if output_path.exists():
-        output_path.unlink()
-
-    # always export as wav, even if the output format is mp3,
-    wavfile.write(output_path, rate=sample_rate, data=samples)
 
     match format:
         case "mp3":
 
-            audio = AudioSegment.from_file(output_path)
+            transform = Mp3Compression(
+                min_bitrate=16,
+                max_bitrate=96,
+                backend="fast-mp3-augment",
+                preserve_delay=False,
+                p=1.0,
+            )
 
-            output_path.unlink()
+            augmented_sound = transform(samples, sample_rate=sample_rate)
 
-            output_path = output_dir / f"{filename}.{format}"
+            if len(augmented_sound.shape) == 2:
+                augmented_sound = augmented_sound.transpose()
+
+            output_path = output_dir / f"{filename}.mp3"
 
             if output_path.exists():
                 output_path.unlink()
 
-            audio.export(output_path, format=format)
+            sf.write(output_path, augmented_sound, sample_rate, format="MP3")
+
+        case "wav":
+
+            output_path = output_dir / f"{filename}.wav"
+
+            if output_path.exists():
+                output_path.unlink()
+
+            sf.write(output_path, samples, sample_rate, format="WAV")
+
+        case _:
+            raise ValueError(f"Unsupported audio format '{format}'")
 
     return AudioFileResult(
         path=str(output_path),

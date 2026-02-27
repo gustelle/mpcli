@@ -127,11 +127,16 @@ def test_save_audio_file_wav():
 def test_save_audio_file_valid_format_mp3():
     with TemporaryDirectory() as tmp_path:
         output_dir = Path(tmp_path)
+
+        # load a valid wav file to get valid samples and sample rate for mp3 export
+        f = Path(__file__).parent.parent / "assets/valid_audio.wav"
+        samples, sample_rate = load_audio_file(f)
+
         result = save_audio_file(
             output_dir=output_dir,
             filename="test",
-            samples=np.array([[0, 0], [0, 0]], dtype=np.int16),
-            sample_rate=44100,
+            samples=samples,
+            sample_rate=sample_rate,
             format="mp3",
         )
         assert Path(result.path).exists()
@@ -174,16 +179,21 @@ def test_save_audio_file_overwrite_existing_wav():
 
 def test_save_audio_file_overwrite_existing_mp3():
     with TemporaryDirectory() as tmp_path:
-        output_dir = Path(tmp_path)
-        mp3_output_path = output_dir / "test.mp3"
-        mp3_output_path.touch()
+        existing_mp3 = Path(__file__).parent.parent / "assets/valid_audio.mp3"
+
+        # read the existing mp3 to get valid samples and sample rate for mp3 export
+        samples, sample_rate = load_audio_file(existing_mp3)
+
+        # copy the existing mp3 to the temporary directory to create a file that we can overwrite
+        mp3_output_path = Path(tmp_path) / "test.mp3"
+        mp3_output_path.write_bytes(existing_mp3.read_bytes())
         mod_time_before = mp3_output_path.stat().st_mtime
 
         result = save_audio_file(
-            output_dir=output_dir,
+            output_dir=Path(tmp_path),
             filename="test",
-            samples=np.array([[0, 0], [0, 0]], dtype=np.int16),
-            sample_rate=44100,
+            samples=samples,
+            sample_rate=sample_rate,
             format="mp3",
         )
         assert Path(result.path).exists()
