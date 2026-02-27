@@ -1,12 +1,9 @@
 from typing import Generator
 
-import audioread
-from tempocnn.classifier import TempoClassifier
-from tempocnn.feature import read_features
-
-from mpcli.entities.config import DetectTempoConfig
-from mpcli.entities.result import TempoResult
-from mpcli.repository.audio_file import iter_sources
+from src.mpcli.entities.config import DetectTempoConfig
+from src.mpcli.entities.result import TempoResult
+from src.mpcli.repository.audio_file import iter_sources
+from src.mpcli.repository.tempo import estimate_tempo
 
 
 def execute_tempo_estimation(
@@ -21,24 +18,6 @@ def execute_tempo_estimation(
     if not config.source.exists():
         raise ValueError(f"Source file {config.source} does not exist")
 
-    model_name = "cnn"
-
-    # initialize the model (may be re-used for multiple files)
-    classifier = TempoClassifier(model_name)
-
     for source in iter_sources(config.source):
 
-        try:
-
-            features = read_features(source, zero_pad=True)
-
-            # estimate the global tempo
-            tempo = classifier.estimate_tempo(features, interpolate=True)
-
-            yield TempoResult(
-                source_path=str(source),
-                tempo=tempo,
-            )
-
-        except audioread.exceptions.NoBackendError as e:
-            raise ValueError(f"Error processing {source}: {e}")
+        yield estimate_tempo(source)
