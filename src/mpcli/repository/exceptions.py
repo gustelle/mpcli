@@ -8,3 +8,9 @@ class InvalidAudioFileError(ValueError):
     """Raised when an audio file is found but cannot be loaded due to an invalid format or other issues."""
 
     pass
+
+
+class AudioTransformError(Exception):
+    """Raised when an error occurs during audio transformation."""
+
+    pass

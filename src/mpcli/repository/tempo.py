@@ -1,19 +1,19 @@
-from pathlib import Path
+from io import BytesIO
 
 import audioread
-import numpy as np
 from tempocnn.classifier import TempoClassifier
 from tempocnn.feature import read_features
 
 from src.mpcli.entities.result import TempoResult
+from src.mpcli.entities.source import AudioSource
 
 
-def estimate_tempo(source: Path) -> TempoResult:
+def estimate_tempo(source: AudioSource) -> TempoResult:
     """
     Estimate the tempo of an audio signal in beats per minute (BPM).
 
     Args:
-        source (Path): The path to the audio file.
+        source (AudioSource): The audio source.
 
     Returns:
         TempoResult: The estimated tempo result.
@@ -25,13 +25,13 @@ def estimate_tempo(source: Path) -> TempoResult:
 
     try:
 
-        features = read_features(source, zero_pad=True)
+        features = read_features(BytesIO(source.audio_bytes), zero_pad=True)
 
         # estimate the global tempo
         tempo = classifier.estimate_tempo(features, interpolate=True)
 
         return TempoResult(
-            source_path=str(source),
+            audio_source=source,
             tempo=tempo,
         )
 

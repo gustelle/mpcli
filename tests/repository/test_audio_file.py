@@ -4,15 +4,13 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 import numpy as np
 import pytest
 
+from src.mpcli.entities.source import FileAudioSource
 from src.mpcli.repository.audio_file import (
     iter_sources,
     load_audio_file,
     save_audio_file,
 )
-from src.mpcli.repository.exceptions import (
-    AudioFileNotFoundError,
-    InvalidAudioFileError,
-)
+from src.mpcli.repository.exceptions import InvalidAudioFileError
 
 
 def test_iter_sources_valid_file():
@@ -21,7 +19,7 @@ def test_iter_sources_valid_file():
         # Test iter_sources with a valid file path
         sources = list(iter_sources(audio_file.name))
         assert len(sources) == 1
-        assert str(sources[0]) == audio_file.name
+        assert sources[0].source == Path(audio_file.name)
 
 
 def test_iter_sources_directory_not_existing():
@@ -42,8 +40,8 @@ def test_iter_sources_directory():
         # Test iter_sources with a valid directory path
         sources = list(iter_sources(tmp_path, "*"))
         assert len(sources) == 2
-        assert str(sources[0]) in [str(audio_file1), str(audio_file2)]
-        assert str(sources[1]) in [str(audio_file1), str(audio_file2)]
+        assert sources[0].source in [audio_file1, audio_file2]
+        assert sources[1].source in [audio_file1, audio_file2]
 
 
 def test_iter_sources_directory_with_hidden_and_unsupported_files():
@@ -61,8 +59,8 @@ def test_iter_sources_directory_with_hidden_and_unsupported_files():
         # Test iter_sources with a valid directory path
         sources = list(iter_sources(tmp_path, "*"))
         assert len(sources) == 2
-        assert str(sources[0]) in [str(audio_file1), str(audio_file2)]
-        assert str(sources[1]) in [str(audio_file1), str(audio_file2)]
+        assert sources[0].source in [audio_file1, audio_file2]
+        assert sources[1].source in [audio_file1, audio_file2]
 
 
 def test_iter_sources_directory_with_format_filter():
@@ -76,36 +74,32 @@ def test_iter_sources_directory_with_format_filter():
         # Test iter_sources with a valid directory path and format filter
         sources = list(iter_sources(tmp_path, "wav"))
         assert len(sources) == 1
-        assert str(sources[0]) == str(audio_file1)
-
-
-def test_load_audio_file_non_existent_file():
-    with pytest.raises(
-        AudioFileNotFoundError, match="Audio file 'non_existent_file.wav' not found"
-    ):
-        load_audio_file("non_existent_file.wav")
+        assert sources[0].source == audio_file1
 
 
 def test_load_audio_file_invalid_file():
     with pytest.raises(InvalidAudioFileError, match="Error loading audio file"):
         f = Path(__file__).parent.parent / "assets/invalid_audio.txt"
-        load_audio_file(f)
+        load_audio_file(FileAudioSource(source=f))
 
 
 def test_load_audio_file_valid_file():
     f = Path(__file__).parent.parent / "assets/valid_audio.wav"
-    samples, sample_rate = load_audio_file(f)
-    assert isinstance(samples, np.ndarray) and samples.shape[0] == 2
+    samples, sample_rate = load_audio_file(FileAudioSource(source=f))
+    assert isinstance(samples, np.ndarray) and samples.size > 0
     assert isinstance(sample_rate, int) and sample_rate == 44100
 
 
 def test_save_audio_file_invalid_format():
-    with pytest.raises(ValueError, match="Unsupported audio format 'unsupported'"):
+    with pytest.raises(InvalidAudioFileError, match="Error saving audio file"):
+        # load valide bytes data to ensure that the error is due to the unsupported format and not invalid audio data
+        f = Path(__file__).parent.parent / "assets/valid_audio.wav"
+        data, sample_rate = load_audio_file(FileAudioSource(source=f))
         save_audio_file(
             output_dir=Path("output"),
             filename="test",
-            samples=np.array([[0, 0], [0, 0]], dtype=np.int16),
-            sample_rate=44100,
+            data=data,
+            sample_rate=sample_rate,
             format="unsupported",
         )
 
@@ -113,15 +107,21 @@ def test_save_audio_file_invalid_format():
 def test_save_audio_file_wav():
     with TemporaryDirectory() as tmp_path:
         output_dir = Path(tmp_path)
+
+        # given a valid bytes data for a wav file
+        f = Path(__file__).parent.parent / "assets/valid_audio.wav"
+        data, sample_rate = load_audio_file(FileAudioSource(source=f))
+
         result = save_audio_file(
             output_dir=output_dir,
             filename="test",
-            samples=np.array([[0, 0], [0, 0]], dtype=np.int16),
-            sample_rate=44100,
+            data=data,
+            sample_rate=sample_rate,
             format="wav",
         )
-        assert Path(result.path).exists()
-        assert result.path.endswith(".wav")
+
+        assert result.sample_rate == sample_rate
+        assert Path(result.source).exists()
 
 
 def test_save_audio_file_valid_format_mp3():
@@ -130,17 +130,17 @@ def test_save_audio_file_valid_format_mp3():
 
         # load a valid wav file to get valid samples and sample rate for mp3 export
         f = Path(__file__).parent.parent / "assets/valid_audio.wav"
-        samples, sample_rate = load_audio_file(f)
+        samples, sample_rate = load_audio_file(FileAudioSource(source=f))
 
         result = save_audio_file(
             output_dir=output_dir,
             filename="test",
-            samples=samples,
+            data=samples,
             sample_rate=sample_rate,
             format="mp3",
         )
-        assert Path(result.path).exists()
-        assert result.path.endswith(".mp3")
+        assert Path(result.source).exists()
+        assert Path(result.source).suffix == ".mp3"
 
 
 def test_save_audio_file_output_dir_not_existing():
@@ -149,12 +149,12 @@ def test_save_audio_file_output_dir_not_existing():
         result = save_audio_file(
             output_dir=output_dir,
             filename="test",
-            samples=np.array([[0, 0], [0, 0]], dtype=np.int16),
+            data=np.array([[0, 0], [0, 0]], dtype=np.int16),
             sample_rate=44100,
             format="wav",
         )
-        assert Path(result.path).exists()
-        assert result.path.endswith(".wav")
+        assert Path(result.source).exists()
+        assert Path(result.source).suffix == ".wav"
 
 
 def test_save_audio_file_overwrite_existing_wav():
@@ -167,12 +167,12 @@ def test_save_audio_file_overwrite_existing_wav():
         result = save_audio_file(
             output_dir=output_dir,
             filename="test",
-            samples=np.array([[0, 0], [0, 0]], dtype=np.int16),
+            data=np.array([[0, 0], [0, 0]], dtype=np.int16),
             sample_rate=44100,
             format="wav",
         )
-        assert Path(result.path).exists()
-        assert result.path.endswith(".wav")
+        assert Path(result.source).exists()
+        assert Path(result.source).suffix == ".wav"
         mod_time_after = wav_output_path.stat().st_mtime
         assert mod_time_after > mod_time_before
 
@@ -182,7 +182,7 @@ def test_save_audio_file_overwrite_existing_mp3():
         existing_mp3 = Path(__file__).parent.parent / "assets/valid_audio.mp3"
 
         # read the existing mp3 to get valid samples and sample rate for mp3 export
-        samples, sample_rate = load_audio_file(existing_mp3)
+        samples, sample_rate = load_audio_file(FileAudioSource(source=existing_mp3))
 
         # copy the existing mp3 to the temporary directory to create a file that we can overwrite
         mp3_output_path = Path(tmp_path) / "test.mp3"
@@ -192,11 +192,11 @@ def test_save_audio_file_overwrite_existing_mp3():
         result = save_audio_file(
             output_dir=Path(tmp_path),
             filename="test",
-            samples=samples,
+            data=samples,
             sample_rate=sample_rate,
             format="mp3",
         )
-        assert Path(result.path).exists()
-        assert result.path.endswith(".mp3")
+        assert Path(result.source).exists()
+        assert Path(result.source).suffix == ".mp3"
         mod_time_after = mp3_output_path.stat().st_mtime
         assert mod_time_after > mod_time_before

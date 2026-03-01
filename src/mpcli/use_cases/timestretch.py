@@ -1,47 +1,20 @@
-import dataclasses
-from typing import Generator
+import tempfile
 
-import jinja2
+import numpy as np
 
-from src.mpcli.entities.config import DetectTempoConfig, TimeStretchConfig
-from src.mpcli.entities.result import TempoResult, TimeStretchResult
-from src.mpcli.repository.audio_file import (
-    iter_sources,
-    load_audio_file,
-    save_audio_file,
-)
+from src.mpcli.entities.result import TimeStretchResult
+from src.mpcli.entities.source import AudioSource
+from src.mpcli.repository.audio_file import load_audio_file
 from src.mpcli.repository.audio_transform import time_stretch
-from src.mpcli.use_cases.tempo import execute_tempo_estimation
-
-
-def _compute_filename(config: TimeStretchConfig, estimate: TempoResult) -> str:
-    """
-    TODO:
-    - make this a repository function that can be re-used across use cases
-    """
-
-    environment = jinja2.Environment()
-
-    tempo_min = round(estimate.tempo * config.min_rate, 2)
-    tempo_max = round(estimate.tempo * config.max_rate, 2)
-
-    if config.filename is not None:
-        filename_template = config.filename
-    elif tempo_min == tempo_max:
-        filename_template = "{{ source.stem }}_{{ tempo_min }}_BPM"
-    else:
-        filename_template = "{{ source.stem }}_{{ tempo_min }}-{{ tempo_max }}_BPM"
-
-    template = environment.from_string(filename_template)
-
-    return template.render(
-        **dataclasses.asdict(config), tempo_min=tempo_min, tempo_max=tempo_max
-    )
+from src.mpcli.repository.tempo import estimate_tempo
 
 
 def execute_timestretch(
-    config: TimeStretchConfig,
-) -> Generator[TimeStretchResult | None, None, None]:
+    source: AudioSource,
+    target_tempo: float | None = None,
+    min_rate: float = 1.0,
+    max_rate: float = 1.0,
+) -> TimeStretchResult | None:
     """Execute time stretching on audio files based on the provided configuration.
 
     produces an audio file with the same tempo as the original, but with a different duration,
@@ -54,57 +27,51 @@ def execute_timestretch(
     Audio file name contains the tempi applied to the file,
     e.g. "my_file_50-50.5_BPM.mp3" for a file that was time stretched between 50 BPM and 50.5 BPM.
 
-    TODO:
-    - yield a BytesIO object instead of writing the file to disk,
-
     Args:
-        config (TimeStretchConfig): Configuration for the time stretching operation.
+        source (AudioSource): Source audio file for the time stretching operation.
+        target_tempo (float, optional): Desired tempo for the output audio file. If not provided, the original tempo will be used. Defaults to None.
+        min_rate (float, optional): Minimum time stretch factor. Defaults to 1.0 (no time stretch).
+        max_rate (float, optional): Maximum time stretch factor. Defaults to 1.0
 
-    Yields:
-        Generator[TimeStretchResult | None, None, None]: Results of the time stretching operation.
+    Returns:
+        TimeStretchResult | None: Result of the time stretching operation.
     """
 
-    for source in iter_sources(config.source):
+    # estimate the global tempo
+    estimate = estimate_tempo(source)
 
-        # estimate the global tempo
-        tempo_config = DetectTempoConfig(source=source)
-        estimate = next(execute_tempo_estimation(tempo_config))
-        target_tempo = config.target_tempo
-
-        # compute the time stretch factor
-        if config.min_rate != 1 or config.max_rate != 1:
-            min_rate = config.min_rate
-            max_rate = config.max_rate
-            target_tempo = round(
-                (estimate.tempo * min_rate + estimate.tempo * max_rate) / 2, 2
-            )
-        else:
-            min_rate = target_tempo / estimate.tempo
-            max_rate = target_tempo / estimate.tempo
-
-        if min_rate == 1 and max_rate == 1:
-            print(
-                f"Skipping {source} since the target tempo is the same as the original tempo ({estimate.tempo} BPM)"
-            )
-            continue
-
-        filename = _compute_filename(config, estimate)
-
-        samples, sample_rate = load_audio_file(source)
-
-        augmented_samples = time_stretch(samples, sample_rate, min_rate, max_rate)
-
-        result = save_audio_file(
-            output_dir=config.output,
-            filename=filename,
-            samples=augmented_samples,
-            sample_rate=sample_rate,
-            format=config.format,
+    # compute the time stretch factor
+    if min_rate != 1 or max_rate != 1:
+        target_tempo = round(
+            (estimate.tempo * min_rate + estimate.tempo * max_rate) / 2, 2
+        )
+    elif target_tempo is not None:
+        min_rate = target_tempo / estimate.tempo
+        max_rate = target_tempo / estimate.tempo
+    else:
+        raise ValueError(
+            "Either target_tempo or min_rate and max_rate must be provided"
         )
 
-        yield TimeStretchResult(
-            source_path=str(source),
-            original_tempo=estimate.tempo,
-            target_tempo=target_tempo,
-            target_path=str(result.path),
+    if min_rate == 1 and max_rate == 1:
+        print(
+            f"the target tempo is the same as the original tempo ({estimate.tempo} BPM)"
         )
+        return None
+
+    augmented_samples = time_stretch(
+        source.audio_bytes, source.sample_rate, min_rate, max_rate
+    )
+
+    converted_audio = AudioSource(
+        audio_bytes=np.save(augmented_samples, allow_pickle=True),
+        audio_format=source.audio_format,
+        sample_rate=source.sample_rate,
+    )
+
+    return TimeStretchResult(
+        audio_source=source,
+        converted_audio=converted_audio,
+        original_tempo=estimate.tempo,
+        target_tempo=target_tempo,
+    )

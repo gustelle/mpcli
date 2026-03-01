@@ -1,8 +1,9 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
-from src.mpcli.entities.config import ConfigError, TimeStretchConfig
+from src.mpcli.cli_entities import CLIConfigError, CLITimeStretchConfig
 
 
 @pytest.mark.parametrize(
@@ -24,38 +25,40 @@ from src.mpcli.entities.config import ConfigError, TimeStretchConfig
         "aiff",
     ],
 )
-def test_TimeStretchConfig_format_validation(format):
-    with pytest.raises(ConfigError, match="Invalid format"):
-        TimeStretchConfig(
+def test_TimeStretchConfig_format_validation(format, wav_source_path):
+    with pytest.raises(ValidationError, match="Input should be 'wav' or 'mp3'"):
+        CLITimeStretchConfig(
             **{
-                "source": "input.wav",
-                "output": "output/",
-                "format": format,
+                "source": wav_source_path,
+                "output": "/tmp/output/",
+                "audio_format": format,
                 "min_rate": 0.8,
                 "max_rate": 1.2,
             }
         )
 
 
-def test_TimeStretchConfig_rate_validation():
-    with pytest.raises(ConfigError, match="min_rate cannot be greater than max_rate"):
-        TimeStretchConfig(
+def test_TimeStretchConfig_rate_validation(wav_source_path):
+    with pytest.raises(
+        ValidationError, match="min_rate cannot be greater than max_rate"
+    ):
+        CLITimeStretchConfig(
             **{
-                "source": "input.wav",
-                "output": "output/",
-                "format": "wav",
+                "source": wav_source_path,
+                "output": "/tmp/output/",
+                "audio_format": "wav",
                 "min_rate": 1.2,
                 "max_rate": 0.8,
             }
         )
 
 
-def test_TimeStretchConfig_rate_defaults():
-    config = TimeStretchConfig(
+def test_TimeStretchConfig_rate_defaults(wav_source_path):
+    config = CLITimeStretchConfig(
         **{
-            "source": "input.wav",
-            "output": "output/",
-            "format": "wav",
+            "source": wav_source_path,
+            "output": "/tmp/output/",
+            "audio_format": "wav",
             "min_rate": 0.8,
         }
     )
@@ -63,11 +66,11 @@ def test_TimeStretchConfig_rate_defaults():
     assert config.min_rate == 0.8
     assert config.max_rate == 1.0
 
-    config = TimeStretchConfig(
+    config = CLITimeStretchConfig(
         **{
-            "source": "input.wav",
-            "output": "output/",
-            "format": "wav",
+            "source": wav_source_path,
+            "output": "/tmp/output/",
+            "audio_format": "wav",
             "max_rate": 1.2,
         }
     )
@@ -76,25 +79,25 @@ def test_TimeStretchConfig_rate_defaults():
     assert config.max_rate == 1.2
 
 
-def test_TimeStretchConfig_default_format():
-    config = TimeStretchConfig(
+def test_TimeStretchConfig_default_format(wav_source_path):
+    config = CLITimeStretchConfig(
         **{
-            "source": "input.wav",
-            "output": "output/",
+            "source": wav_source_path,
+            "output": "/tmp/output/",
             "min_rate": 0.8,
             "max_rate": 1.2,
         }
     )
 
-    assert config.format == "wav"
+    assert config.audio_format == "wav"
 
 
-def test_TimeStretchConfig_path_conversion():
-    config = TimeStretchConfig(
+def test_TimeStretchConfig_path_conversion(wav_source_path):
+    config = CLITimeStretchConfig(
         **{
-            "source": "input.wav",
-            "output": "output/",
-            "format": "wav",
+            "source": wav_source_path,
+            "output": "/tmp/output/",
+            "audio_format": "wav",
             "min_rate": 0.8,
             "max_rate": 1.2,
         }
@@ -105,39 +108,39 @@ def test_TimeStretchConfig_path_conversion():
 
 
 def test_TimeStretchConfig_source_is_mandatory():
-    with pytest.raises(ConfigError, match="Source file must be provided"):
-        TimeStretchConfig(
+    with pytest.raises(ValidationError, match="Field required"):
+        CLITimeStretchConfig(
             **{
-                "output": "output/",
-                "format": "wav",
+                "output": "/tmp/output/",
+                "audio_format": "wav",
                 "min_rate": 0.8,
                 "max_rate": 1.2,
             }
         )
 
 
-def test_TimeStretchConfig_output_is_mandatory():
-    with pytest.raises(ConfigError, match="Output directory must be provided"):
-        TimeStretchConfig(
+def test_TimeStretchConfig_output_is_mandatory(wav_source_path):
+    with pytest.raises(ValidationError, match="Field required"):
+        CLITimeStretchConfig(
             **{
-                "source": "input.wav",
-                "format": "wav",
+                "source": wav_source_path,
+                "audio_format": "wav",
                 "min_rate": 0.8,
                 "max_rate": 1.2,
             }
         )
 
 
-def test_TimeStretchConfig_target_tempo_and_rate_mutual_exclusivity():
+def test_TimeStretchConfig_target_tempo_and_rate_mutual_exclusivity(wav_source_path):
     with pytest.raises(
-        ConfigError,
+        ValidationError,
         match="Only one of target_tempo or min_rate/max_rate can be provided",
     ):
-        TimeStretchConfig(
+        CLITimeStretchConfig(
             **{
-                "source": "input.wav",
-                "output": "output/",
-                "format": "wav",
+                "source": wav_source_path,
+                "output": "/tmp/output/",
+                "audio_format": "wav",
                 "target_tempo": 120.0,
                 "min_rate": 0.8,
                 "max_rate": 1.2,
@@ -145,15 +148,15 @@ def test_TimeStretchConfig_target_tempo_and_rate_mutual_exclusivity():
         )
 
 
-def test_TimeStretchConfig_target_tempo_or_rate_requirement():
+def test_TimeStretchConfig_target_tempo_or_rate_requirement(wav_source_path):
     with pytest.raises(
-        ConfigError,
+        ValidationError,
         match="Either target_tempo or min_rate/max_rate must be provided",
     ):
-        TimeStretchConfig(
+        CLITimeStretchConfig(
             **{
-                "source": "input.wav",
-                "output": "output/",
-                "format": "wav",
+                "source": wav_source_path,
+                "output": "/tmp/output/",
+                "audio_format": "wav",
             }
         )

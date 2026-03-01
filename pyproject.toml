@@ -14,6 +14,10 @@ dependencies = [
     "audiomentations[extras] (>=0.43.1,<0.44.0)",
     "rich (>=14.3.2,<15.0.0)",
     "jinja2 (>=3.1.6,<4.0.0)",
+    "fastapi (>=0.133.1,<0.134.0)",
+    "python-multipart (>=0.0.22,<0.0.23)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "pyloudnorm (>=0.2.0,<0.3.0)",
 ]
 
 [tool.poetry]
@@ -32,8 +36,8 @@ dev = [
 ]
 
 [tool.poetry.scripts]
-detect_tempo = "mpcli.main:detect_tempo"
-timestretch = "mpcli.main:timestretch"
-convert = "mpcli.main:convert"
-normalize = "mpcli.main:normalize"
+detect_tempo = "mpcli.cli:detect_tempo"
+timestretch = "mpcli.cli:timestretch"
+convert = "mpcli.cli:convert"
+normalize = "mpcli.cli:normalize"
 

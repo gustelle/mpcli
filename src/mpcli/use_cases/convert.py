@@ -1,27 +1,14 @@
-from typing import Generator
+from typing import Literal
 
-from mpcli.entities.config import ConvertConfig
-from mpcli.entities.result import ConvertResult
-from mpcli.repository.audio_file import iter_sources, load_audio_file, save_audio_file
+from src.mpcli.entities.result import ConvertResult
+from src.mpcli.entities.source import AudioSource
+from src.mpcli.repository.audio_convert import convert
 
 
 def execute_format_conversion(
-    config: ConvertConfig,
-) -> Generator[ConvertResult | None, None, None]:
+    config: AudioSource, target_format: Literal["wav", "mp3"]
+) -> ConvertResult | None:
 
-    for source in iter_sources(config.source):
+    result = convert(config, target_format=target_format)
 
-        audio_data, sr = load_audio_file(source)
-
-        result = save_audio_file(
-            output_dir=config.output,
-            filename=source.stem,
-            samples=audio_data,
-            sample_rate=sr,
-            format=config.format,
-        )
-
-        yield ConvertResult(
-            source_path=str(source),
-            target_path=str(result.path),
-        )
+    return result
