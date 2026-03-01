@@ -51,7 +51,26 @@ def _compute_filename(config: CLITimeStretchConfig, tempo: float) -> str:
 
 @app.command()
 def detect_tempo():
-    """estimate the tempo of an audio file"""
+    """estimate the tempo of an audio file
+
+    The configuration is read from `config.toml` file, which should contain a `detect_tempo` section with the following format:
+    ```toml
+    [detect_tempo]
+    source = "/path/to/audio/file/or/directory"
+    ```
+
+    Several `detect_tempo` sections can be provided as an array:
+    ```toml
+    [[detect_tempo]]
+    source = "/path/to/audio/file/or/directory"
+    [[detect_tempo]]
+    source = "/path/to/another/audio/file/or/directory"
+    ```
+
+    for each `detect_tempo` section, the `source` can be either a single audio file or a directory containing audio files.
+    If a directory is provided, all audio files in the directory and its subdirectories will be processed.
+
+    """
 
     table = Table(title="Tempo Detection Results")
 
