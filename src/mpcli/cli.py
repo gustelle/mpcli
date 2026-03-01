@@ -61,30 +61,41 @@ def detect_tempo():
     with open("config.toml", "rb") as f:
         data = tomllib.load(f)
 
-        source = data["detect_tempo"]["source"]
+        configs = []
+        if isinstance(data["detect_tempo"], list):
+            configs = data["detect_tempo"]
+        else:
+            configs = [data["detect_tempo"]]
 
-        # case  where config points to a single file
-        try:
-            config: FileAudioSource = FileAudioSource(source=source)
+        for config in configs:
 
-            result = execute_tempo_estimation(config)
+            files = []
+            if Path(config["source"]).is_dir():
+                files = list(Path(config["source"]).glob("**/*.*"))
+            else:
+                files = [Path(config["source"])]
+            for file in files:
+                try:
+                    config: FileAudioSource = FileAudioSource(source=file)
+                    result = execute_tempo_estimation(config)
+                    if result is not None:
+                        table.add_row(
+                            (
+                                result.audio_source.name
+                                if result.audio_source.name
+                                else "Unknown"
+                            ),
+                            f"{result.tempo} BPM",
+                        )
+                except ValidationError as e:
+                    logger.error(
+                        f"Ignore {file} check `config.toml` file and ensure it is correctly formatted."
+                    )
+                except Exception as e:
+                    logger.error(f"Error during tempo estimation: {e}")
 
-            if result is not None:
-                table.add_row(
-                    result.audio_source.name if result.audio_source.name else "Unknown",
-                    f"{result.tempo} BPM",
-                )
-
-            console = Console()
-            console.print(table)
-        except ValidationError as e:
-            logger.error(
-                "check `config.toml` file and ensure it is correctly formatted."
-                "The expected format is:\n\n"
-                '[detect_tempo]\nsource = "path/to/audio/file"\n\n'
-            )
-        except Exception as e:
-            logger.error(f"Error during tempo estimation: {e}")
+    console = Console()
+    console.print(table)
 
 
 @app.command()
