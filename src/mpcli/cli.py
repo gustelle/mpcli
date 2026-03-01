@@ -6,6 +6,8 @@ from pathlib import Path
 
 import jinja2
 import typer
+from loguru import logger
+from pydantic import ValidationError
 from rich.console import Console
 from rich.table import Table
 
@@ -62,17 +64,27 @@ def detect_tempo():
         source = data["detect_tempo"]["source"]
 
         # case  where config points to a single file
-        config: FileAudioSource = FileAudioSource(source=source)
-        result = execute_tempo_estimation(config)
+        try:
+            config: FileAudioSource = FileAudioSource(source=source)
 
-        if result is not None:
-            table.add_row(
-                result.audio_source.name if result.audio_source.name else "Unknown",
-                f"{result.tempo} BPM",
+            result = execute_tempo_estimation(config)
+
+            if result is not None:
+                table.add_row(
+                    result.audio_source.name if result.audio_source.name else "Unknown",
+                    f"{result.tempo} BPM",
+                )
+
+            console = Console()
+            console.print(table)
+        except ValidationError as e:
+            logger.error(
+                "check `config.toml` file and ensure it is correctly formatted."
+                "The expected format is:\n\n"
+                '[detect_tempo]\nsource = "path/to/audio/file"\n\n'
             )
-
-    console = Console()
-    console.print(table)
+        except Exception as e:
+            logger.error(f"Error during tempo estimation: {e}")
 
 
 @app.command()
