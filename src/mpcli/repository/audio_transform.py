@@ -21,6 +21,19 @@ def get_duration(data: np.ndarray, sample_rate: int) -> float:
     return duration
 
 
+def get_loudness(data: np.ndarray, sample_rate: int) -> float:
+
+    if not len(data.shape) == 2:
+        raise AudioTransformError(
+            f"Expected audio samples to be a 2D array with shape (num_samples, num_channels), but got shape {data.shape}"
+        )
+
+    meter = pyln.Meter(sample_rate)  # create BS.1770 meter
+    loudness = meter.integrated_loudness(data)
+
+    return loudness
+
+
 def normalize_loudness(
     samples: np.ndarray,
     sample_rate: int,
@@ -34,8 +47,7 @@ def normalize_loudness(
         )
 
     # measure the loudness first
-    meter = pyln.Meter(sample_rate)  # create BS.1770 meter
-    loudness = meter.integrated_loudness(samples)
+    loudness = get_loudness(samples, sample_rate)
 
     loudness_normalized_audio = pyln.normalize.loudness(samples, loudness, lufs)
 

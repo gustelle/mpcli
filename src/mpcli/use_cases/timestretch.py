@@ -1,10 +1,7 @@
-import tempfile
-
 import numpy as np
 
 from src.mpcli.entities.result import TimeStretchResult
 from src.mpcli.entities.source import AudioSource
-from src.mpcli.repository.audio_file import load_audio_file
 from src.mpcli.repository.audio_transform import time_stretch
 from src.mpcli.repository.tempo import estimate_tempo
 

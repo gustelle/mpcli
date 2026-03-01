@@ -1,5 +1,5 @@
-from mpcli.cli_entities import AudioSource
 from src.mpcli.entities.result import TempoResult
+from src.mpcli.entities.source import AudioSource
 from src.mpcli.repository.tempo import estimate_tempo
 
 

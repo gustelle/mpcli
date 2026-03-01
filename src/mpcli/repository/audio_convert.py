@@ -4,11 +4,10 @@ from typing import Literal
 import numpy as np
 import soundfile as sf
 from audiomentations import Mp3Compression
-from loguru import logger
 
-from mpcli.repository.audio_file import load_audio_file
-from mpcli.repository.exceptions import AudioTransformError
 from src.mpcli.entities.source import AudioSource
+from src.mpcli.repository.audio_file import load_audio_file
+from src.mpcli.repository.exceptions import AudioTransformError
 
 
 def convert(
