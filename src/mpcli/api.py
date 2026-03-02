@@ -33,10 +33,21 @@ def timestretch(source: AudioSource, target_tempo: float):
 
 @app.post("/tempo")
 def tempo(file: UploadFile = File(...)) -> TempoResponse:
-    # config: FileAudioSource = FileAudioSource(source=file.file)
-    # for result in execute_tempo_estimation(config):
-    #     if result is not None:
-    #         return TempoResponse(
-    #             source_name=file.filename, source_format=file.content_type, tempo=120.0
-    #         )
+
+    file_content = file.file.read()
+    audio_source = AudioSource(
+        name=file.filename,
+        audio_format=file.filename.split(".")[-1],
+        audio_bytes=file_content,
+        sample_rate=44100,  # Assuming a default sample rate, adjust as needed
+    )
+
+    result = execute_tempo_estimation(audio_source)
+    if result is not None:
+        return TempoResponse(
+            source_name=audio_source.name,
+            source_format=audio_source.audio_format,
+            tempo=result.tempo,
+        )
+
     raise ValueError("Tempo estimation failed")
