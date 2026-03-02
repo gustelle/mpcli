@@ -66,11 +66,7 @@ def detect_tempo():
                 result = execute_tempo_estimation(audio)
                 if result is not None:
                     table.add_row(
-                        (
-                            result.audio_source.name
-                            if result.audio_source.name
-                            else "Unknown"
-                        ),
+                        result.audio_source.name,
                         f"{result.tempo} BPM",
                     )
             except ValidationError as e:
@@ -111,17 +107,16 @@ def timestretch():
                     max_rate=c.max_rate,
                 )
 
-                # dump to a file according to the provided filename template, for debugging purposes
-                filename = _timestretched_filename(c, result.original_tempo)
-                sound_file = save_audio_file(
-                    output_dir=Path(c.output),
-                    filename=filename,
-                    data=result.converted_audio.audio_bytes,
-                    sample_rate=result.converted_audio.sample_rate,
-                    format=result.converted_audio.audio_format,
-                )
-
                 if result is not None:
+                    # dump to a file according to the provided filename template, for debugging purposes
+                    filename = _timestretched_filename(c, result.original_tempo)
+                    sound_file = save_audio_file(
+                        output_dir=Path(c.output),
+                        filename=filename,
+                        data=result.converted_audio.audio_bytes,
+                        sample_rate=result.converted_audio.sample_rate,
+                        format=result.converted_audio.audio_format,
+                    )
                     table.add_row(
                         str(c.source),
                         str(sound_file),
@@ -154,28 +149,22 @@ def convert():
             result = execute_format_conversion(source, target_format=c.target_format)
 
             if result is not None:
+
+                # dump to a file according to the provided filename template, for debugging purposes
+                filename = f"{result.converted_audio.name}_converted.{c.target_format}"
+                save_audio_file(
+                    output_dir=c.output,
+                    filename=filename,
+                    data=result.converted_audio.audio_bytes,
+                    sample_rate=result.converted_audio.sample_rate,
+                    format=result.converted_audio.audio_format,
+                )
                 table.add_row(
-                    result.audio_source.name if result.audio_source.name else "Unknown",
+                    result.audio_source.name,
                     result.audio_source.audio_format,
-                    (
-                        result.converted_audio.name
-                        if result.converted_audio.name
-                        else "Unknown"
-                    ),
+                    filename,
                     result.converted_audio.audio_format,
                 )
-
-            # dump to a file according to the provided filename template, for debugging purposes
-            filename = (
-                c.output / f"{result.converted_audio.name}_converted.{c.target_format}"
-            )
-            save_audio_file(
-                output_dir=c.output,
-                filename=filename,
-                data=result.converted_audio.audio_bytes,
-                sample_rate=result.converted_audio.sample_rate,
-                format=result.converted_audio.audio_format,
-            )
 
     console = Console()
     console.print(table)
@@ -190,14 +179,26 @@ def normalize():
 
     table.add_column("Source name", justify="right", style="cyan", no_wrap=True)
     table.add_column("LUFS", style="magenta")
+    table.add_column("Target name", style="green", no_wrap=True)
 
-    for config in configs:
-        for source in iter_sources(config.source):
-            result = execute_normalization(source, lufs=config.lufs)
+    for c in configs:
+        for source in iter_sources(c.source):
+            result = execute_normalization(source, lufs=c.lufs)
             if result is not None:
+                filename = (
+                    f"{result.converted_audio.name}_normalized.{source.audio_format}"
+                )
+                save_audio_file(
+                    output_dir=c.output,
+                    filename=filename,
+                    data=result.converted_audio.audio_bytes,
+                    sample_rate=result.converted_audio.sample_rate,
+                    format=result.converted_audio.audio_format,
+                )
                 table.add_row(
-                    result.audio_source.name if result.audio_source.name else "Unknown",
+                    result.audio_source.name,
                     str(result.lufs),
+                    filename,
                 )
 
     console = Console()
