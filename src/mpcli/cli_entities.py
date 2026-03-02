@@ -1,21 +1,23 @@
 from pathlib import Path
 from typing import Literal, Optional, Self
 
-from pydantic import Field, model_validator
-
-from src.mpcli.entities.source import FileAudioSource
+from pydantic import BaseModel, Field, model_validator
 
 
 class CLIConfigError(ValueError):
     pass
 
 
-class CLINormalizeConfig(FileAudioSource):
+class LocalAudioSource(BaseModel):
+    source: Path
+
+
+class CLINormalizeConfig(LocalAudioSource):
     output: Path
     lufs: float = Field(default=-14.0, le=0.0)
 
 
-class CLITimeStretchConfig(FileAudioSource):
+class CLITimeStretchConfig(LocalAudioSource):
     """Controls are done here, among others:
     - if min_rate is provided but not max_rate, max_rate is set to 1.0 (no time stretch)
     - if max_rate is provided but not min_rate, min_rate is set to 1.0 (no time stretch)
@@ -65,7 +67,10 @@ class CLITimeStretchConfig(FileAudioSource):
         return self
 
 
-class CLIConvertConfig(FileAudioSource):
-
+class CLIConvertConfig(LocalAudioSource):
     output: Path
     target_format: Literal["wav", "mp3"] = Field(default="wav")
+
+
+class CLITempoEstimationConfig(LocalAudioSource):
+    pass

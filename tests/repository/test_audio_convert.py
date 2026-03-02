@@ -2,15 +2,18 @@ import io
 
 import soundfile as sf
 
-from src.mpcli.entities.source import FileAudioSource
+from src.mpcli.entities.source import AudioSource
 from src.mpcli.repository.audio_convert import convert
 
 
 def test_convert_wav_to_mp3(wav_source_path):
 
+    file = open(wav_source_path, "rb")
+
     source = convert(
-        audio_source=FileAudioSource(
-            source=wav_source_path,
+        audio_source=AudioSource(
+            audio_bytes=file.read(),
+            audio_format="wav",
         ),
         target_format="mp3",
     )
@@ -28,9 +31,12 @@ def test_convert_wav_to_mp3(wav_source_path):
 
 def test_convert_mp3_to_wav(mp3_source_path):
 
+    file = open(mp3_source_path, "rb")
+
     source = convert(
-        audio_source=FileAudioSource(
-            source=mp3_source_path,
+        audio_source=AudioSource(
+            audio_bytes=file.read(),
+            audio_format="mp3",
         ),
         target_format="wav",
     )

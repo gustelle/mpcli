@@ -29,11 +29,11 @@ def convert(
             )
 
             # convert the bytes back to a numpy array
-            data, sr = load_audio_file(audio_source)
+            data, sr = sf.read(BytesIO(audio_source.audio_bytes))
 
             if not len(data.shape) == 2:
                 raise AudioTransformError(
-                    f"Expected audio samples to be a 2D array with shape (num_samples, num_channels), but got shape {samples.shape}"
+                    f"Expected audio samples to be a 2D array with shape (num_samples, num_channels), but got shape {data.shape}"
                 )
 
             if data.shape[0] > data.shape[1]:
@@ -58,7 +58,7 @@ def convert(
                 return audio_source
 
             # convert the bytes back to a numpy array
-            audio_array, sr = load_audio_file(audio_source)
+            audio_array, sr = sf.read(BytesIO(audio_source.audio_bytes))
 
             io = BytesIO()
             sf.write(io, audio_array, sr, format="WAV")

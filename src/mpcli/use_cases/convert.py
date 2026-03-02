@@ -6,9 +6,10 @@ from src.mpcli.repository.audio_convert import convert
 
 
 def execute_format_conversion(
-    config: AudioSource, target_format: Literal["wav", "mp3"]
+    source: AudioSource,
+    target_format: Literal["wav", "mp3"],
 ) -> ConvertResult | None:
 
-    result = convert(config, target_format=target_format)
+    result = convert(source, target_format=target_format)
 
     return result

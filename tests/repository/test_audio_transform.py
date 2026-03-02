@@ -1,8 +1,8 @@
-import librosa
-import numpy as np
+from pathlib import Path
+
 import pyloudnorm as pyln
 
-from src.mpcli.entities.source import FileAudioSource
+from src.mpcli.entities.source import AudioSource
 from src.mpcli.repository.audio_file import load_audio_file
 from src.mpcli.repository.audio_transform import (
     get_duration,
@@ -11,9 +11,9 @@ from src.mpcli.repository.audio_transform import (
 )
 
 
-def test_normalize_loudness(wav_source_path):
+def test_normalize_loudness(wav_source_path: Path):
 
-    data, sample_rate = load_audio_file(FileAudioSource(source=wav_source_path))
+    data, sample_rate = load_audio_file(wav_source_path)
 
     normalized_audio_bytes = normalize_loudness(
         samples=data,
@@ -28,10 +28,10 @@ def test_normalize_loudness(wav_source_path):
     assert abs(loudness - (-14.0)) < 0.1
 
 
-def test_time_stretch(mp3_source_path):
+def test_time_stretch(mp3_source_path: Path):
 
     # load mp3 file
-    data, sample_rate = load_audio_file(FileAudioSource(source=mp3_source_path))
+    data, sample_rate = load_audio_file(mp3_source_path)
 
     initial_duration = get_duration(data, sample_rate)
 

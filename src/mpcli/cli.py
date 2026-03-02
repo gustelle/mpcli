@@ -1,7 +1,4 @@
-# pylint: disable=missing-module-docstring
-# pylint: disable=missing-function-docstring
 import dataclasses
-import tomllib
 from pathlib import Path
 
 import jinja2
@@ -15,11 +12,11 @@ from src.mpcli.cli_entities import (
     CLIConfigError,
     CLIConvertConfig,
     CLINormalizeConfig,
+    CLITempoEstimationConfig,
     CLITimeStretchConfig,
-    FileAudioSource,
 )
-from src.mpcli.entities.source import AudioSource
-from src.mpcli.repository.audio_file import save_audio_file
+from src.mpcli.repository.audio_file import iter_sources, save_audio_file
+from src.mpcli.repository.toml_config import read_configurations
 from src.mpcli.use_cases.convert import execute_format_conversion
 from src.mpcli.use_cases.normalization import execute_normalization
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
@@ -28,7 +25,7 @@ from src.mpcli.use_cases.timestretch import execute_timestretch
 app = typer.Typer()
 
 
-def _compute_filename(config: CLITimeStretchConfig, tempo: float) -> str:
+def _timestretched_filename(config: CLITimeStretchConfig, tempo: float) -> str:
 
     environment = jinja2.Environment()
 
@@ -51,67 +48,37 @@ def _compute_filename(config: CLITimeStretchConfig, tempo: float) -> str:
 
 @app.command()
 def detect_tempo():
-    """estimate the tempo of an audio file
-
-    The configuration is read from `config.toml` file, which should contain a `detect_tempo` section with the following format:
-    ```toml
-    [detect_tempo]
-    source = "/path/to/audio/file/or/directory"
-    ```
-
-    Several `detect_tempo` sections can be provided as an array:
-    ```toml
-    [[detect_tempo]]
-    source = "/path/to/audio/file/or/directory"
-    [[detect_tempo]]
-    source = "/path/to/another/audio/file/or/directory"
-    ```
-
-    for each `detect_tempo` section, the `source` can be either a single audio file or a directory containing audio files.
-    If a directory is provided, all audio files in the directory and its subdirectories will be processed.
-
-    """
+    """estimate the tempo of an audio file"""
 
     table = Table(title="Tempo Detection Results")
 
     table.add_column("Source", justify="right", style="cyan", no_wrap=True)
     table.add_column("Tempo", style="magenta")
 
-    with open("config.toml", "rb") as f:
-        data = tomllib.load(f)
+    configs = read_configurations(
+        "config.toml", "detect_tempo", CLITempoEstimationConfig
+    )
 
-        configs = []
-        if isinstance(data["detect_tempo"], list):
-            configs = data["detect_tempo"]
-        else:
-            configs = [data["detect_tempo"]]
+    for config in configs:
 
-        for config in configs:
-
-            files = []
-            if Path(config["source"]).is_dir():
-                files = list(Path(config["source"]).glob("**/*.*"))
-            else:
-                files = [Path(config["source"])]
-            for file in files:
-                try:
-                    config: FileAudioSource = FileAudioSource(source=file)
-                    result = execute_tempo_estimation(config)
-                    if result is not None:
-                        table.add_row(
-                            (
-                                result.audio_source.name
-                                if result.audio_source.name
-                                else "Unknown"
-                            ),
-                            f"{result.tempo} BPM",
-                        )
-                except ValidationError as e:
-                    logger.error(
-                        f"Ignore {file} check `config.toml` file and ensure it is correctly formatted."
+        for audio in iter_sources(config.source):
+            try:
+                result = execute_tempo_estimation(audio)
+                if result is not None:
+                    table.add_row(
+                        (
+                            result.audio_source.name
+                            if result.audio_source.name
+                            else "Unknown"
+                        ),
+                        f"{result.tempo} BPM",
                     )
-                except Exception as e:
-                    logger.error(f"Error during tempo estimation: {e}")
+            except ValidationError as e:
+                logger.error(
+                    f"Ignore {audio.name if audio.name else 'Unknown'} check `config.toml` file and ensure it is correctly formatted."
+                )
+            except Exception as e:
+                logger.error(f"Error during tempo estimation: {e}")
 
     console = Console()
     console.print(table)
@@ -122,42 +89,32 @@ def timestretch():
 
     try:
 
-        with open("config.toml", "rb") as f:
-            data = tomllib.load(f)
+        table = Table(title="Time Stretching Results")
 
-            if "timestretch" not in data:
-                raise CLIConfigError("Missing 'timestretch' section in config.toml")
+        table.add_column("Source", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Target", style="magenta")
+        table.add_column("BPM", justify="right", style="green")
 
-            table = Table(title="Time Stretching Results")
+        # if config provided as an array, take the first element
+        configs = read_configurations(
+            "config.toml", "timestretch", CLITimeStretchConfig
+        )
 
-            table.add_column("Source", justify="right", style="cyan", no_wrap=True)
-            table.add_column("Target", style="magenta")
-            table.add_column("BPM", justify="right", style="green")
+        for c in configs:
 
-            # if config provided as an array, take the first element
-            if isinstance(data["timestretch"], list):
-                configs = data["timestretch"]
-            else:
-                configs = [data["timestretch"]]
+            for source in iter_sources(c.source):
 
-            for item in configs:
-                config = CLITimeStretchConfig(**item)
                 result = execute_timestretch(
-                    source=AudioSource(
-                        source=config.source,
-                        audio_bytes=config.audio_bytes,
-                        audio_format=config.audio_format,
-                        sample_rate=config.sample_rate,
-                    ),
-                    target_tempo=config.target_tempo,
-                    min_rate=config.min_rate,
-                    max_rate=config.max_rate,
+                    source=source,
+                    target_tempo=c.target_tempo,
+                    min_rate=c.min_rate,
+                    max_rate=c.max_rate,
                 )
 
                 # dump to a file according to the provided filename template, for debugging purposes
-                filename = _compute_filename(config, result.original_tempo)
+                filename = _timestretched_filename(c, result.original_tempo)
                 sound_file = save_audio_file(
-                    output_dir=Path(config.output),
+                    output_dir=Path(c.output),
                     filename=filename,
                     data=result.converted_audio.audio_bytes,
                     sample_rate=result.converted_audio.sample_rate,
@@ -166,13 +123,13 @@ def timestretch():
 
                 if result is not None:
                     table.add_row(
-                        str(config.source),
+                        str(c.source),
                         str(sound_file),
                         str(result.target_tempo),
                     )
 
-            console = Console()
-            console.print(table)
+        console = Console()
+        console.print(table)
 
     except CLIConfigError as e:
         print(f"Configuration error: {e}")
@@ -181,10 +138,6 @@ def timestretch():
 @app.command()
 def convert():
 
-    with open("config.toml", "rb") as f:
-        data = tomllib.load(f)
-        config: CLIConvertConfig = CLIConvertConfig(**data["convert"])
-
     table = Table(title="Format Conversion Results")
 
     table.add_column("Source name", justify="right", style="cyan", no_wrap=True)
@@ -192,14 +145,37 @@ def convert():
     table.add_column("Target name", style="magenta", no_wrap=True)
     table.add_column("Target format", style="magenta")
 
-    result = execute_format_conversion(config, target_format=config.target_format)
-    if result is not None:
-        table.add_row(
-            result.audio_source.name if result.audio_source.name else "Unknown",
-            result.audio_source.audio_format,
-            result.converted_audio.name if result.converted_audio.name else "Unknown",
-            result.converted_audio.audio_format,
-        )
+    configs = read_configurations("config.toml", "convert", CLIConvertConfig)
+
+    for c in configs:
+
+        for source in iter_sources(c.source):
+
+            result = execute_format_conversion(source, target_format=c.target_format)
+
+            if result is not None:
+                table.add_row(
+                    result.audio_source.name if result.audio_source.name else "Unknown",
+                    result.audio_source.audio_format,
+                    (
+                        result.converted_audio.name
+                        if result.converted_audio.name
+                        else "Unknown"
+                    ),
+                    result.converted_audio.audio_format,
+                )
+
+            # dump to a file according to the provided filename template, for debugging purposes
+            filename = (
+                c.output / f"{result.converted_audio.name}_converted.{c.target_format}"
+            )
+            save_audio_file(
+                output_dir=c.output,
+                filename=filename,
+                data=result.converted_audio.audio_bytes,
+                sample_rate=result.converted_audio.sample_rate,
+                format=result.converted_audio.audio_format,
+            )
 
     console = Console()
     console.print(table)
@@ -208,21 +184,21 @@ def convert():
 @app.command()
 def normalize():
 
-    with open("config.toml", "rb") as f:
-        data = tomllib.load(f)
-        config: CLINormalizeConfig = CLINormalizeConfig(**data["normalize"])
+    configs = read_configurations("config.toml", "normalize", CLINormalizeConfig)
 
     table = Table(title="Normalization Results")
 
     table.add_column("Source name", justify="right", style="cyan", no_wrap=True)
     table.add_column("LUFS", style="magenta")
 
-    result = execute_normalization(config, lufs=config.lufs)
-    if result is not None:
-        table.add_row(
-            result.audio_source.name if result.audio_source.name else "Unknown",
-            str(result.lufs),
-        )
+    for config in configs:
+        for source in iter_sources(config.source):
+            result = execute_normalization(source, lufs=config.lufs)
+            if result is not None:
+                table.add_row(
+                    result.audio_source.name if result.audio_source.name else "Unknown",
+                    str(result.lufs),
+                )
 
     console = Console()
     console.print(table)

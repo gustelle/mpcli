@@ -6,7 +6,7 @@ import numpy as np
 import soundfile as sf
 from loguru import logger
 
-from src.mpcli.entities.source import FileAudioSource
+from src.mpcli.entities.source import AudioSource
 from src.mpcli.repository.exceptions import (
     AudioFileNotFoundError,
     InvalidAudioFileError,
@@ -16,13 +16,20 @@ from src.mpcli.repository.exceptions import (
 def iter_sources(
     source_path: str | Path,
     format: Literal["*", "wav", "mp3", "flac", "ogg", "m4a"] = "*",
-) -> Generator[FileAudioSource, None, None]:
+) -> Generator[AudioSource, None, None]:
 
     if not Path(source_path).exists():
         raise ValueError(f"'{source_path}' does not exist")
 
     if Path(source_path).is_file():
-        yield FileAudioSource(source=Path(source_path))
+        ext = Path(source_path).suffix.lower()
+        name = Path(source_path).stem
+        if ext not in [".wav", ".mp3", ".flac", ".ogg", ".m4a"]:
+            raise ValueError(f"Unsupported audio format: '{ext}'")
+
+        yield AudioSource(
+            audio_bytes=Path(source_path).read_bytes(), audio_format=ext[1:], name=name
+        )
     else:
         for source in Path(source_path).glob("*.*"):
 
@@ -39,7 +46,12 @@ def iter_sources(
                 logger.info(f"Skipping file with unsupported format: {source}")
                 continue
 
-            yield FileAudioSource(source=source)
+            ext = source.suffix.lower()
+            name = source.stem
+
+            yield AudioSource(
+                audio_bytes=source.read_bytes(), audio_format=ext[1:], name=name
+            )
 
 
 def save_audio_file(
@@ -48,7 +60,7 @@ def save_audio_file(
     data: np.ndarray,
     sample_rate: int,
     format: Literal["wav", "mp3"] = "wav",
-) -> FileAudioSource:
+) -> AudioSource:
     """dump the audio file as a numpy array, for debugging purposes"""
 
     if not output_dir.exists():
@@ -59,31 +71,34 @@ def save_audio_file(
 
     try:
         sf.write(file_path, data, sample_rate, format=format.upper())
-        return FileAudioSource(source=file_path)
+
+        return AudioSource(
+            audio_bytes=file_path.read_bytes(), audio_format=format, name=filename
+        )
     except Exception as e:
         raise InvalidAudioFileError(f"Error saving audio file '{file_path}': {e}")
 
 
-def load_audio_file(source: FileAudioSource) -> tuple[np.ndarray, int]:
+def load_audio_file(file_path: Path) -> tuple[np.ndarray, int]:
     """Load an audio file and return the samples and sample rate.
 
     Args:
-        source (FileAudioSource): The audio source.
+        file_path (Path): The path to the audio file.
     Returns:
         tuple[np.ndarray, int]: A tuple containing the audio samples as a numpy array and the sample rate as an integer.
     """
     try:
         data, sample_rate = sf.read(
-            source.source, always_2d=True
+            file_path, always_2d=True
         )  # always return as 2D array even for mono audio
 
         logger.info(
-            f"Loaded audio file '{source.source}' with shape {data.shape} and sample rate {sample_rate}"
+            f"Loaded audio file '{file_path}' with shape {data.shape} and sample rate {sample_rate}"
         )
 
         return data, sample_rate
 
     except FileNotFoundError:
-        raise AudioFileNotFoundError(f"Audio file '{source.source}' not found")
+        raise AudioFileNotFoundError(f"Audio file '{file_path}' not found")
     except Exception as e:
-        raise InvalidAudioFileError(f"Error loading audio file '{source.source}': {e}")
+        raise InvalidAudioFileError(f"Error loading audio file '{file_path}': {e}")
