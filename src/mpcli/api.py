@@ -3,8 +3,8 @@ from typing import Optional
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 
-from mpcli.use_cases.tempo import execute_tempo_estimation
 from src.mpcli.entities.source import AudioSource
+from src.mpcli.use_cases.tempo import execute_tempo_estimation
 
 app = FastAPI()
 
