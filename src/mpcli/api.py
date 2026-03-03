@@ -1,7 +1,7 @@
 from typing import Optional
 
-from fastapi import FastAPI, File, UploadFile
-from pydantic import BaseModel
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from pydantic import BaseModel, ValidationError
 
 from src.mpcli.entities.source import AudioSource
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
@@ -35,19 +35,26 @@ def timestretch(source: AudioSource, target_tempo: float):
 def tempo(file: UploadFile = File(...)) -> TempoResponse:
 
     file_content = file.file.read()
-    audio_source = AudioSource(
-        name=file.filename,
-        audio_format=file.filename.split(".")[-1],
-        audio_bytes=file_content,
-        sample_rate=44100,  # Assuming a default sample rate, adjust as needed
-    )
 
-    result = execute_tempo_estimation(audio_source)
-    if result is not None:
-        return TempoResponse(
-            source_name=audio_source.name,
-            source_format=audio_source.audio_format,
-            tempo=result.tempo,
+    try:
+        audio_source = AudioSource(
+            name=file.filename,
+            audio_format=file.filename.split(".")[-1],
+            audio_bytes=file_content,
+            sample_rate=44100,  # Assuming a default sample rate, adjust as needed
         )
 
-    raise ValueError("Tempo estimation failed")
+        result = execute_tempo_estimation(audio_source)
+        if result is not None:
+            return TempoResponse(
+                source_name=audio_source.name,
+                source_format=audio_source.audio_format,
+                tempo=result.tempo,
+            )
+
+        raise ValueError("Tempo estimation failed")
+
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
