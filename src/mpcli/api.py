@@ -52,7 +52,7 @@ def tempo(file: UploadFile = File(...)) -> TempoResponse:
                 tempo=result.tempo,
             )
 
-        raise ValueError("Tempo estimation failed")
+        raise ValueError("No tempo estimation result returned")
 
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=str(e))
