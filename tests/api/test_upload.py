@@ -135,3 +135,99 @@ def test_convert_mp3_to_wav(mp3_source_path):
         assert (
             duration == initial_duration
         )  # Check that the duration of the converted file matches the original
+
+
+def test_convert_invalid_target_format(wav_source_path):
+
+    # given
+    client = TestClient(app)
+
+    wav_bytes = Path(wav_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/convert",
+        files={"file": ("test_audio.wav", wav_bytes)},
+        data={"target_format": "flac"},  # Unsupported format
+    )
+
+    # then
+    assert (
+        response.status_code == 422
+    )  # Unprocessable Entity for unsupported target format
+
+
+def test_normalize_invalid_lufs(wav_source_path):
+
+    # given
+    client = TestClient(app)
+
+    wav_bytes = Path(wav_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/normalize",
+        files={"file": ("test_audio.wav", wav_bytes)},
+        data={"lufs": "invalid"},  # Invalid LUFS value
+    )
+
+    # then
+    assert response.status_code == 422  # Unprocessable Entity for invalid LUFS value
+
+
+def test_normalize_valid_lufs(wav_source_path):
+
+    # given
+    client = TestClient(app)
+
+    wav_bytes = Path(wav_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/normalize",
+        files={"file": ("test_audio.wav", wav_bytes)},
+        data={"lufs": -14.0},  # Valid LUFS value
+    )
+
+    # then
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/octet-stream"
+    assert len(response.content) > 0
+
+
+def test_timestretch_invalid_tempo(wav_source_path):
+
+    # given
+    client = TestClient(app)
+
+    wav_bytes = Path(wav_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/timestretch",
+        files={"file": ("test_audio.wav", wav_bytes)},
+        data={"target_tempo": "invalid"},  # Invalid tempo value
+    )
+
+    # then
+    assert response.status_code == 422  # Unprocessable Entity for invalid tempo value
+
+
+def test_timestretch_valid_tempo(wav_source_path):
+
+    # given
+    client = TestClient(app)
+
+    wav_bytes = Path(wav_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/timestretch",
+        files={"file": ("test_audio.wav", wav_bytes)},
+        data={"target_tempo": 120.0},  # Valid tempo value
+    )
+
+    # then
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/octet-stream"
+    assert len(response.content) > 0

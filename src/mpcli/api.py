@@ -5,7 +5,9 @@ from pydantic import BaseModel, ValidationError
 
 from src.mpcli.entities.source import AudioSource
 from src.mpcli.use_cases.convert import execute_format_conversion
+from src.mpcli.use_cases.normalization import execute_normalization
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
+from src.mpcli.use_cases.timestretch import execute_timestretch
 
 app = FastAPI()
 
@@ -52,13 +54,52 @@ def convert(file: UploadFile = File(...), target_format: Literal["wav", "mp3"] =
 
 
 @app.post("/normalize")
-def normalize(source: AudioSource):
-    return {"message": "Hello World"}
+def normalize(file: UploadFile = File(...), lufs: float = 0.0):
+
+    file_content = file.file.read()
+
+    try:
+        audio_source = AudioSource(
+            name=file.filename,
+            audio_format=file.filename.split(".")[-1],
+            audio_bytes=file_content,
+            sample_rate=44100,  # Assuming a default sample rate, adjust as needed
+        )
+
+        result = execute_normalization(audio_source, lufs)
+        return Response(
+            result.converted_audio.audio_bytes,
+            media_type="application/octet-stream",
+        )
+
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/timestretch")
-def timestretch(source: AudioSource, target_tempo: float):
-    return {"message": "Hello World"}
+def timestretch(file: UploadFile, target_tempo: float):
+    file_content = file.file.read()
+
+    try:
+        audio_source = AudioSource(
+            name=file.filename,
+            audio_format=file.filename.split(".")[-1],
+            audio_bytes=file_content,
+            sample_rate=44100,  # Assuming a default sample rate, adjust as needed
+        )
+
+        result = execute_timestretch(audio_source, target_tempo)
+        return Response(
+            result.converted_audio.audio_bytes,
+            media_type="application/octet-stream",
+        )
+
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/tempo")
