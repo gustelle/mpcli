@@ -12,4 +12,4 @@ def execute_format_conversion(
 
     result = convert(source, target_format=target_format)
 
-    return result
+    return ConvertResult(audio_source=source, converted_audio=result)

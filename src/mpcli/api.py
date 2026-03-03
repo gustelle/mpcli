@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Literal
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Response, UploadFile
 from pydantic import BaseModel, ValidationError
 
 from src.mpcli.entities.source import AudioSource
+from src.mpcli.use_cases.convert import execute_format_conversion
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
 
 app = FastAPI()
@@ -16,9 +17,38 @@ class TempoResponse(BaseModel):
     tempo: float
 
 
+class AudioResponse(BaseModel):
+    name: str
+    format: Literal["wav", "mp3"]
+    content: bytes
+    sample_rate: int
+
+
 @app.post("/convert")
-def convert(source: AudioSource):
-    return {"message": "Hello World"}
+def convert(file: UploadFile = File(...), target_format: Literal["wav", "mp3"] = "wav"):
+
+    file_content = file.file.read()
+
+    try:
+        audio_source = AudioSource(
+            name=file.filename,
+            audio_format=file.filename.split(".")[-1],
+            audio_bytes=file_content,
+            sample_rate=44100,  # Assuming a default sample rate, adjust as needed
+        )
+
+        # Here you would implement the actual conversion logic
+        result = execute_format_conversion(audio_source, target_format)
+
+        # generate a response with the converted audio content
+        return Response(
+            result.converted_audio.audio_bytes, media_type="application/octet-stream"
+        )
+
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/normalize")

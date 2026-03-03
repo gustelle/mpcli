@@ -1,11 +1,13 @@
+import tempfile
 from pathlib import Path
 
+import librosa
 from fastapi.testclient import TestClient
 
 from src.mpcli.api import app
 
 
-def test_upload_wav(wav_source_path):
+def test_tempo_wav(wav_source_path):
 
     # given
     client = TestClient(app)
@@ -22,7 +24,7 @@ def test_upload_wav(wav_source_path):
     assert isinstance(response.json()["tempo"], float) and response.json()["tempo"] > 0
 
 
-def test_upload_mp3(mp3_source_path):
+def test_tempo_mp3(mp3_source_path):
 
     # given
     client = TestClient(app)
@@ -39,7 +41,7 @@ def test_upload_mp3(mp3_source_path):
     assert isinstance(response.json()["tempo"], float) and response.json()["tempo"] > 0
 
 
-def test_upload_unsupported_format(invalid_source_path):
+def test_tempo_unsupported_format(invalid_source_path):
 
     # given
     client = TestClient(app)
@@ -51,3 +53,78 @@ def test_upload_unsupported_format(invalid_source_path):
 
     # then
     assert response.status_code == 422  # Unprocessable Entity for unsupported format
+
+
+def test_convert_unsupported_format(invalid_source_path):
+
+    # given
+    client = TestClient(app)
+
+    txt_bytes = Path(invalid_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/convert",
+        files={"file": ("test_file.txt", txt_bytes)},
+        data={"target_format": "wav"},
+    )
+
+    # then
+    assert response.status_code == 422  # Unprocessable Entity for unsupported format
+
+
+def test_convert_wav_to_mp3(wav_source_path):
+
+    # given
+    client = TestClient(app)
+
+    initial_duration = librosa.get_duration(filename=wav_source_path)
+
+    wav_bytes = Path(wav_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/convert",
+        files={"file": ("test_audio.wav", wav_bytes)},
+        data={"target_format": "mp3"},
+    )
+
+    # then
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/octet-stream"
+    assert len(response.content) > 0
+
+    # check the content is a valid mp3 file
+    # try to read it
+    with tempfile.NamedTemporaryFile(suffix=".mp3") as tmp_file:
+        tmp_file.write(response.content)
+        tmp_file.flush()
+        duration = librosa.get_duration(path=tmp_file.name)
+        assert (
+            duration == initial_duration
+        )  # Check that the duration of the converted file matches the original
+
+
+def test_convert_mp3_to_wav(mp3_source_path):
+
+    # given
+    client = TestClient(app)
+
+    mp3_bytes = Path(mp3_source_path).read_bytes()
+
+    # when
+    response = client.post(
+        "/convert",
+        files={"file": ("test_audio.mp3", mp3_bytes)},
+        data={"target_format": "wav"},
+    )
+
+    # then
+    assert response.status_code == 200
+    assert response.json()["name"] == "test_audio.wav"
+    assert response.json()["format"] == "wav"
+    assert (
+        isinstance(response.json()["content"], str)
+        and len(response.json()["content"]) > 0
+    )
+    assert response.json()["sample_rate"] == 44100
