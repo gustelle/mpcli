@@ -112,6 +112,8 @@ def test_convert_mp3_to_wav(mp3_source_path):
 
     mp3_bytes = Path(mp3_source_path).read_bytes()
 
+    initial_duration = librosa.get_duration(filename=mp3_source_path)
+
     # when
     response = client.post(
         "/convert",
@@ -121,10 +123,15 @@ def test_convert_mp3_to_wav(mp3_source_path):
 
     # then
     assert response.status_code == 200
-    assert response.json()["name"] == "test_audio.wav"
-    assert response.json()["format"] == "wav"
-    assert (
-        isinstance(response.json()["content"], str)
-        and len(response.json()["content"]) > 0
-    )
-    assert response.json()["sample_rate"] == 44100
+    assert response.headers["content-type"] == "application/octet-stream"
+    assert len(response.content) > 0
+
+    # check the content is a valid wav file
+    # try to read it
+    with tempfile.NamedTemporaryFile(suffix=".wav") as tmp_file:
+        tmp_file.write(response.content)
+        tmp_file.flush()
+        duration = librosa.get_duration(path=tmp_file.name)
+        assert (
+            duration == initial_duration
+        )  # Check that the duration of the converted file matches the original
