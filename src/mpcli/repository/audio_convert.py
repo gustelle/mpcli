@@ -5,8 +5,7 @@ import numpy as np
 import soundfile as sf
 from audiomentations import Mp3Compression
 
-from src.mpcli.entities.source import AudioSource
-from src.mpcli.repository.audio_file import load_audio_file
+from src.mpcli.entities.source import AudioSource, ensure_audio_shape
 from src.mpcli.repository.exceptions import AudioTransformError
 
 
@@ -29,45 +28,22 @@ def convert(
             )
 
             # convert the bytes back to a numpy array
-            data, sr = sf.read(BytesIO(audio_source.audio_bytes))
+            data = audio_source.to_array()
 
-            if not len(data.shape) == 2:
-                raise AudioTransformError(
-                    f"Expected audio samples to be a 2D array with shape (num_samples, num_channels), but got shape {data.shape}"
-                )
+            # audiomentations expects the audio samples to be in shape (channels, frames)
+            data = data.astype(np.float32).T
 
-            if data.shape[0] > data.shape[1]:
-                data = data.T
+            sr = audio_source.sample_rate
 
             augmented_sound = transform(data, sample_rate=sr)
 
-            augmented_sound = augmented_sound.astype(np.float32).T
-
-            io = BytesIO()
-            sf.write(io, augmented_sound, sr, format="MP3")
-
-            return AudioSource(
-                audio_bytes=io.getvalue(),
-                audio_format="mp3",
-                sample_rate=sr,
+            return AudioSource.from_array(
+                data=augmented_sound, audio_format="mp3", sample_rate=sr
             )
 
         case "wav":
 
-            if audio_source.audio_format == "wav":
-                return audio_source
-
-            # convert the bytes back to a numpy array
-            audio_array, sr = sf.read(BytesIO(audio_source.audio_bytes))
-
-            io = BytesIO()
-            sf.write(io, audio_array, sr, format="WAV")
-
-            return AudioSource(
-                audio_bytes=io.getvalue(),
-                audio_format="wav",
-                sample_rate=sr,
-            )
+            raise NotImplementedError("WAV conversion is not implemented yet")
 
         case _:
             raise ValueError(f"Unsupported audio format '{target_format}'")

@@ -6,7 +6,7 @@ import numpy as np
 import soundfile as sf
 from loguru import logger
 
-from src.mpcli.entities.source import AudioSource
+from src.mpcli.entities.source import AudioSource, ensure_audio_shape
 from src.mpcli.repository.exceptions import (
     AudioFileNotFoundError,
     InvalidAudioFileError,
@@ -70,6 +70,8 @@ def save_audio_file(
     file_path = output_dir / f"{filename}.{format}"
 
     try:
+        data = ensure_audio_shape(data)
+
         sf.write(file_path, data, sample_rate, format=format.upper())
 
         return AudioSource(
@@ -82,6 +84,9 @@ def save_audio_file(
 def load_audio_file(file_path: Path) -> tuple[np.ndarray, int]:
     """Load an audio file and return the samples and sample rate.
 
+    returns the audio samples as a 2D numpy array with shape (frames, channels)
+    and the sample rate as an integer.
+
     Args:
         file_path (Path): The path to the audio file.
     Returns:
@@ -91,10 +96,6 @@ def load_audio_file(file_path: Path) -> tuple[np.ndarray, int]:
         data, sample_rate = sf.read(
             file_path, always_2d=True
         )  # always return as 2D array even for mono audio
-
-        logger.info(
-            f"Loaded audio file '{file_path}' with shape {data.shape} and sample rate {sample_rate}"
-        )
 
         return data, sample_rate
 

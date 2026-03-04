@@ -25,3 +25,15 @@ def mp3_source_path():
 def invalid_source_path():
     p = Path(__file__).parent / "assets" / "invalid_audio.txt"
     return p
+
+
+@pytest.fixture
+def mono_wave_path():
+    p = Path(__file__).parent / "assets" / "mono.wav"
+    return p
+
+
+@pytest.fixture
+def mono_mp3_path():
+    p = Path(__file__).parent / "assets" / "mono.mp3"
+    return p

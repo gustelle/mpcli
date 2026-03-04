@@ -1,6 +1,7 @@
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import FastAPI, File, HTTPException, Response, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
+from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from src.mpcli.entities.source import AudioSource
@@ -27,7 +28,7 @@ class AudioResponse(BaseModel):
 
 
 @app.post("/convert")
-def convert(file: UploadFile = File(...), target_format: Literal["wav", "mp3"] = "wav"):
+def convert(file: Annotated[UploadFile, File()], target_format: Annotated[str, Form()]):
 
     file_content = file.file.read()
 
@@ -54,7 +55,9 @@ def convert(file: UploadFile = File(...), target_format: Literal["wav", "mp3"] =
 
 
 @app.post("/normalize")
-def normalize(file: UploadFile = File(...), lufs: float = 0.0):
+def normalize(
+    file: Annotated[UploadFile, File()], lufs: Annotated[float, Form()] = 0.0
+):
 
     file_content = file.file.read()
 
@@ -79,7 +82,16 @@ def normalize(file: UploadFile = File(...), lufs: float = 0.0):
 
 
 @app.post("/timestretch")
-def timestretch(file: UploadFile, target_tempo: float):
+def timestretch(
+    file: Annotated[UploadFile, File()],
+    target_tempo: Annotated[float, Form()],
+    min_rate: Annotated[float, Form()] = 1.0,
+    max_rate: Annotated[float, Form()] = 1.0,
+):
+    logger.info(
+        f"Received timestretch request for file '{file.filename}' with target_tempo={target_tempo}, min_rate={min_rate}, max_rate={max_rate}"
+    )
+
     file_content = file.file.read()
 
     try:
@@ -90,7 +102,7 @@ def timestretch(file: UploadFile, target_tempo: float):
             sample_rate=44100,  # Assuming a default sample rate, adjust as needed
         )
 
-        result = execute_timestretch(audio_source, target_tempo)
+        result = execute_timestretch(audio_source, target_tempo, min_rate, max_rate)
         return Response(
             result.converted_audio.audio_bytes,
             media_type="application/octet-stream",

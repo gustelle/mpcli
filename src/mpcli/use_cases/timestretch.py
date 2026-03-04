@@ -1,4 +1,4 @@
-import numpy as np
+from loguru import logger
 
 from src.mpcli.entities.result import TimeStretchResult
 from src.mpcli.entities.source import AudioSource
@@ -56,12 +56,13 @@ def execute_timestretch(
         )
         return None
 
-    augmented_samples = time_stretch(
-        source.audio_bytes, source.sample_rate, min_rate, max_rate
-    )
+    data = source.to_array()
 
-    converted_audio = AudioSource(
-        audio_bytes=np.save(augmented_samples, allow_pickle=True),
+    augmented_samples = time_stretch(data, source.sample_rate, min_rate, max_rate)
+
+    # convert the time-stretched samples back to bytes
+    converted_audio = AudioSource.from_array(
+        data=augmented_samples,
         audio_format=source.audio_format,
         sample_rate=source.sample_rate,
     )

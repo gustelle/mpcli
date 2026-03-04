@@ -35,6 +35,8 @@ def test_time_stretch(mp3_source_path: Path):
 
     initial_duration = get_duration(data, sample_rate)
 
+    print(f"Initial duration: {initial_duration:.2f} seconds")
+
     stretched_audio = time_stretch(
         samples=data,
         sample_rate=sample_rate,
