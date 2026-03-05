@@ -1,5 +1,5 @@
 [project]
-name = "mpcli"
+name = "mpcli_backend"
 version = "0.1.0"
 description = ""
 authors = [
@@ -37,8 +37,8 @@ dev = [
 ]
 
 [tool.poetry.scripts]
-detect_tempo = "mpcli.cli:detect_tempo"
-timestretch = "mpcli.cli:timestretch"
-convert = "mpcli.cli:convert"
-normalize = "mpcli.cli:normalize"
+detect_tempo = "src.mpcli.cli:detect_tempo"
+timestretch = "src.mpcli.cli:timestretch"
+convert = "src.mpcli.cli:convert"
+normalize = "src.mpcli.cli:normalize"
 

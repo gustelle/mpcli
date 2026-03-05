@@ -4,7 +4,7 @@ import pyloudnorm as pyln
 from audiomentations import TimeStretch
 from loguru import logger
 
-from mpcli.entities.source import ensure_audio_shape
+from src.mpcli.entities.source import ensure_audio_shape
 from src.mpcli.repository.exceptions import AudioTransformError
 
 
