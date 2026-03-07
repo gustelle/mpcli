@@ -1,6 +1,7 @@
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
@@ -11,6 +12,18 @@ from src.mpcli.use_cases.tempo import execute_tempo_estimation
 from src.mpcli.use_cases.timestretch import execute_timestretch
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class TempoResponse(BaseModel):
