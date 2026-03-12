@@ -18,9 +18,12 @@ this is required if you want to use the frontend
 fastapi dev src/mpcli/api.py
 ```
 
+Then go to the frontend and start Node
+
 ## How to run with the CLI
 
-Configure things in the file `config.toml`
+The CLI provides a simple way yet not quite user friendly. 
+You don't need to run the frontend to run the CLI, but the drawback is that you have to configure things in the file `config.toml`
 
 * `poetry run timestretch` will timestrech the given files to the target tempo (`target_tempo`)
 * `poetry run detect_tempo` will just give the tempos of the files located in the source directory 

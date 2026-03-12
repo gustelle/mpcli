@@ -1,7 +1,9 @@
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import PlainTextResponse
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
@@ -13,17 +15,17 @@ from src.mpcli.use_cases.timestretch import execute_timestretch
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173",
-]
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc: StarletteHTTPException):
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    message = "Validation errors:"
+    for error in exc.errors():
+        message += f"\nField: {error['loc']}, Error: {error['msg']}"
+    return PlainTextResponse(message, status_code=400)
 
 
 class TempoResponse(BaseModel):
@@ -41,7 +43,9 @@ class AudioResponse(BaseModel):
 
 
 @app.post("/convert")
-def convert(file: Annotated[UploadFile, File()], target_format: Annotated[str, Form()]):
+def convert(file: Annotated[UploadFile, File()], 
+            target_format: Annotated[str, Form()],
+            sample_rate: Annotated[int, Form()] = 44100):
 
     file_content = file.file.read()
 
@@ -50,11 +54,15 @@ def convert(file: Annotated[UploadFile, File()], target_format: Annotated[str, F
             name=file.filename,
             audio_format=file.filename.split(".")[-1],
             audio_bytes=file_content,
-            sample_rate=44100,  # Assuming a default sample rate, adjust as needed
+            sample_rate=sample_rate,  # Use the provided sample rate
         )
 
         # Here you would implement the actual conversion logic
         result = execute_format_conversion(audio_source, target_format)
+        
+        logger.info(
+            f"Converted '{audio_source.name}' from {audio_source.audio_format} to {target_format}, resulting in {len(result.converted_audio.audio_bytes)} bytes"
+        )
 
         # generate a response with the converted audio content
         return Response(
