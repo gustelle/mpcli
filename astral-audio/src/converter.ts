@@ -1,15 +1,14 @@
 
+
 import * as fs from 'fs';
 import { readFile } from 'node:fs/promises';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { generateOutputPath, listFilesInDirectoryWithExtension } from './files';
 
-
-export interface Mp3Options {
+export interface ConvertOptions {
     sampleRate: number;
 }
-
-
 
 
 export class AudioConverter {
@@ -18,41 +17,14 @@ export class AudioConverter {
         // TODO: Initialize any necessary resources or configurations for the converter
     }
 
-    private listFilesInDirectoryWithExtension(inputPath: string, extension: string): string[] {
-    
-        const stat = fs.lstatSync(inputPath);
-
-        const filesInDir: string[] = [];
-
-        if (stat.isDirectory()) {
-            // Handle directory conversion
-            const files = fs.readdirSync(inputPath);
-            const filteredFiles = files.filter(file => path.extname(file).toLowerCase() === extension.toLowerCase());
-
-            if (filteredFiles.length === 0) {
-                throw new Error(`No ${extension.toUpperCase()} files found in the selected directory`);
-            }
-
-            filesInDir.push(...filteredFiles.map(file => path.join(inputPath, file)));
-        } else if (stat.isFile()) {
-            // Handle single file conversion
-            if (path.extname(inputPath).toLowerCase() !== extension.toLowerCase()) {
-                throw new Error(`Selected file is not a ${extension.toUpperCase()} file`);
-            }
-            filesInDir.push(inputPath);
-        } else {
-            throw new Error('Selected path is neither a file nor a directory');
-        }
-        return filesInDir;
-    }
 
     private async doConvertFile(
         token: vscode.CancellationToken, 
         progress: vscode.Progress<{ message?: string; increment?: number }>,
         inputPath: string, 
-        options: Mp3Options): Promise<string> {
+        options: ConvertOptions): Promise<string> {
 
-        const outputPath = this.generateOutputPath(inputPath, 'mp3');
+        const outputPath = generateOutputPath(inputPath, 'converted', 'mp3');
 
         return new Promise<string>((resolve, reject) => {
 
@@ -116,14 +88,14 @@ export class AudioConverter {
      * @param options The options for MP3 conversion
      * @returns The path to the converted MP3 file
      */
-    public async convertToMp3(inputPath: string, options: Mp3Options): Promise<string> {
+    public async convertToMp3(inputPath: string, options: ConvertOptions): Promise<string> {
         
         // Validate input file exists
         if (!fs.existsSync(inputPath)) {
             throw new Error(`Input file does not exist: ${inputPath}`);
         }
 
-        const filesToConvert: string[] = this.listFilesInDirectoryWithExtension(inputPath, '.wav');
+        const filesToConvert: string[] = listFilesInDirectoryWithExtension(inputPath, '.wav');
 
         return vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
@@ -146,10 +118,5 @@ export class AudioConverter {
         });
     }
 
-    private generateOutputPath(inputPath: string, format: string): string {
-        const parsedPath = path.parse(inputPath);
-        const outputFileName = `${parsedPath.name}_converted.${format}`;
-        return path.join(parsedPath.dir, outputFileName);
-    }
-
+    
 }

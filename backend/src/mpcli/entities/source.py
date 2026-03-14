@@ -46,7 +46,10 @@ class AudioSource(BaseModel):
 
     @classmethod
     def from_array(
-        self, data: np.ndarray, audio_format: Literal["wav", "mp3"], sample_rate: int
+        self, data: np.ndarray, 
+        audio_format: Literal["wav", "mp3"], 
+        sample_rate: int,
+        name: Optional[str] = None
     ) -> Self:
         """Create an AudioSource instance from an audio array.
 
@@ -55,6 +58,7 @@ class AudioSource(BaseModel):
                 expected shape is (num_samples, num_channels) or (num_channels, num_samples)
             audio_format (Literal["wav", "mp3"]): Format of the audio data.
             sample_rate (int): Sample rate of the audio data in Hz.
+            name (Optional[str]): Optional name for the audio source.
 
         Returns:
             AudioSource: An instance of AudioSource with the provided audio data and metadata.
@@ -72,6 +76,7 @@ class AudioSource(BaseModel):
                 audio_bytes=bytes_io.getvalue(),
                 audio_format=audio_format,
                 sample_rate=sample_rate,
+                name=name 
             )
         except Exception as e:
             import traceback

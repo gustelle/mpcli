@@ -22,6 +22,21 @@
         "command": "astral-audio.convertDirToMp3",
         "title": "Convert WAV in directory to MP3",
         "category": "Astral Audio"
+      },
+      {
+        "command": "astral-audio.timeStretchAudio",
+        "title": "Time Stretch Audio file",
+        "category": "Astral Audio"
+      },
+      {
+        "command": "astral-audio.normalizeAudio",
+        "title": "Normalize Audio file",
+        "category": "Astral Audio"
+      },
+      {
+        "command": "astral-audio.detectBPM",
+        "title": "Detect BPM of Audio file",
+        "category": "Astral Audio"
       }
     ],
     "menus": {
@@ -33,6 +48,18 @@
         {
           "command": "astral-audio.convertDirToMp3",
           "when": "explorerResourceIsFolder"
+        },
+        {
+          "command": "astral-audio.timeStretchAudio",
+          "when": "resourceExtname =~ /\\.(wav|mp3)$/i"
+        },
+        {
+          "command": "astral-audio.normalizeAudio",
+          "when": "resourceExtname =~ /\\.(wav|mp3)$/i"
+        },
+        {
+          "command": "astral-audio.detectBPM",
+          "when": "resourceExtname =~ /\\.(wav|mp3)$/i"
         }
       ]
     }

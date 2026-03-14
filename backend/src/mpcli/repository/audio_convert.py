@@ -38,7 +38,9 @@ def convert(
             augmented_sound = transform(data, sample_rate=sr)
 
             return AudioSource.from_array(
-                data=augmented_sound, audio_format="mp3", sample_rate=sr
+                data=augmented_sound, audio_format="mp3", sample_rate=sr,
+                # keep the same name but change the extension
+                name=audio_source.name
             )
 
         case "wav":

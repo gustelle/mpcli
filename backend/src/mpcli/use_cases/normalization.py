@@ -27,6 +27,7 @@ def execute_normalization(
             audio_bytes=normalized_audio_bytes,
             audio_format=config.audio_format,
             sample_rate=config.sample_rate,
+            name=f"{config.name}_normalized"
         ),
         lufs=lufs,
     )

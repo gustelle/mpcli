@@ -1,4 +1,4 @@
-import dataclasses
+
 from pathlib import Path
 
 import jinja2
@@ -42,7 +42,7 @@ def _timestretched_filename(config: CLITimeStretchConfig, tempo: float) -> str:
     template = environment.from_string(filename_template)
 
     return template.render(
-        **dataclasses.asdict(config), tempo_min=tempo_min, tempo_max=tempo_max
+        **config.model_dump(), tempo_min=tempo_min, tempo_max=tempo_max
     )
 
 
@@ -113,13 +113,13 @@ def timestretch():
                     sound_file = save_audio_file(
                         output_dir=Path(c.output),
                         filename=filename,
-                        data=result.converted_audio.audio_bytes,
+                        data=result.converted_audio.to_array(),
                         sample_rate=result.converted_audio.sample_rate,
                         format=result.converted_audio.audio_format,
                     )
                     table.add_row(
                         str(c.source),
-                        str(sound_file),
+                        sound_file.name,
                         str(result.target_tempo),
                     )
 
@@ -149,20 +149,23 @@ def convert():
             result = execute_format_conversion(source, target_format=c.target_format)
 
             if result is not None:
+                
+                
+                # get numpy array from the converted audio source
+                converted_array = result.converted_audio.to_array()
 
                 # dump to a file according to the provided filename template, for debugging purposes
-                filename = f"{result.converted_audio.name}_converted.{c.target_format}"
                 save_audio_file(
                     output_dir=c.output,
-                    filename=filename,
-                    data=result.converted_audio.audio_bytes,
+                    filename=result.converted_audio.name,
+                    data=converted_array,
                     sample_rate=result.converted_audio.sample_rate,
                     format=result.converted_audio.audio_format,
                 )
                 table.add_row(
                     result.audio_source.name,
                     result.audio_source.audio_format,
-                    filename,
+                    result.converted_audio.name,
                     result.converted_audio.audio_format,
                 )
 
@@ -185,20 +188,18 @@ def normalize():
         for source in iter_sources(c.source):
             result = execute_normalization(source, lufs=c.lufs)
             if result is not None:
-                filename = (
-                    f"{result.converted_audio.name}_normalized.{source.audio_format}"
-                )
+                
                 save_audio_file(
                     output_dir=c.output,
-                    filename=filename,
-                    data=result.converted_audio.audio_bytes,
+                    filename=result.converted_audio.name,
+                    data=result.converted_audio.to_array(),
                     sample_rate=result.converted_audio.sample_rate,
                     format=result.converted_audio.audio_format,
                 )
                 table.add_row(
                     result.audio_source.name,
                     str(result.lufs),
-                    filename,
+                    result.converted_audio.name,
                 )
 
     console = Console()

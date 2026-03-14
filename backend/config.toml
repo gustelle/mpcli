@@ -561,8 +561,8 @@ source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Beethoven/Sonata C# Minor
 
 [[timestretch]]
 # slice 29
-source = "/Volumes/USB DISK/Input/Metallica/One/Drums intro kick.tmp.wav"
-output = "/Volumes/USB DISK/Input/Metallica/One/"
+source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Metallica/One/Metallica - One (Drums Only).wav"
+output = "/Users/guillaume/Downloads"
 format = "mp3"
 min_rate = 0.85
 max_rate = 0.85
@@ -578,9 +578,9 @@ filename = "One_Drums_Kick_r_{{min_rate}}" # add a tag to the output file name, 
 #source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Mickael Jackson/Billie Jean/Michael Jackson - Billie Jean (Official Video)_bass_split_by_lalalai.wav"
 source = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Metallica/One/Metallica - One (Drums Only).wav"
 
-output = "/Volumes/USB DISK/Input/Metallica/One/"
+output = "/Users/guillaume/Downloads"
 
-format = "mp3" # wav|mp3
+target_format = "mp3" # wav|mp3
 
 [normalize]
 
@@ -590,6 +590,6 @@ output = "/Volumes/CORSAIR/Media/0_Sources/Sounds_Bank/Metallica/One/normalized/
 # the loudness level in LUFS, e.g. -14.0, -23.0, etc.
 lufs=-14.0
 
-format = "mp3" # wav|mp3
+target_format = "mp3" # wav|mp3
 
 

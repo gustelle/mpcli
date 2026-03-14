@@ -1,15 +1,17 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { AudioConverter } from './audioConverter';
+import { AudioConverter, ConvertOptions } from './converter';
+import * as dialog from './dialog';
+import { TimeStretcher, TimeStretchOptions } from './timestretch';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	const audioConverter = new AudioConverter();
-
+	
 	// Register command for converting to MP3 with default settings
     let convertToMp3Command = vscode.commands.registerCommand('astral-audio.convertWavToMp3', async (uri: vscode.Uri) => {
         if (!uri) {
@@ -18,14 +20,14 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         try {
-            const options = await showConversionOptionsDialog();
+            const options = await showConvertDialog();
             if (!options) {
                 return; // User cancelled
             }
 
-            const outputPath = await audioConverter.convertToMp3(uri.fsPath, {
-                sampleRate: options.sampleRate,
-            });
+            const audioConverter = new AudioConverter();
+
+            const outputPath = await audioConverter.convertToMp3(uri.fsPath, options);
             vscode.window.showInformationMessage(`File converted successfully: ${outputPath}`);
         } catch (error) {
             vscode.window.showErrorMessage(`Conversion failed: ${error}`);
@@ -40,14 +42,14 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         try {
-            const options = await showConversionOptionsDialog();
+            const options = await showConvertDialog();
             if (!options) {
                 return; // User cancelled
             }
 
-            await audioConverter.convertToMp3(uri.fsPath, {
-                sampleRate: options.sampleRate,
-            });
+            const audioConverter = new AudioConverter();
+
+            await audioConverter.convertToMp3(uri.fsPath, options);
 
             vscode.window.showInformationMessage(`Directory converted successfully`);
         } catch (error) {
@@ -55,11 +57,32 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-	context.subscriptions.push(convertToMp3Command, convertDirToMp3Command);
+    let timestretchCommand = vscode.commands.registerCommand('astral-audio.timeStretch', async (uri: vscode.Uri) => {
+        if (!uri) {
+            vscode.window.showErrorMessage('No file selected');
+            return;
+        }
+
+        try {
+            const options = await showTimeStretchDialog();
+            if (!options) {
+                return; // User cancelled
+            }
+
+            const timeStretcher = new TimeStretcher();
+
+            const outputPath = await timeStretcher.timeStretch(uri.fsPath, options);
+            vscode.window.showInformationMessage(`File time-stretched successfully: ${outputPath}`);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Time-stretching failed: ${error}`);
+        }
+    });
+
+	context.subscriptions.push(convertToMp3Command, convertDirToMp3Command, timestretchCommand);
 	
 }
 
-async function showConversionOptionsDialog(): Promise<ConversionOptions | undefined> {
+async function showConvertDialog(): Promise<ConvertOptions | undefined> {
   
     // Sample rate selection - allow custom input
     const sampleRateInput = await vscode.window.showInputBox({
@@ -77,15 +100,37 @@ async function showConversionOptionsDialog(): Promise<ConversionOptions | undefi
     const sampleRate = parseInt(sampleRateInput);
 
     return {
-        format: 'mp3',
         sampleRate,
     };
 }
 
-interface ConversionOptions {
-    format: 'wav' | 'mp3';
-    sampleRate: number;
+interface TestDialogResult {
+	name: string;
 }
+
+
+async function showTimeStretchDialog(): Promise<TimeStretchOptions | undefined> {
+  
+    const testDir = path.resolve(__dirname, './dialogs');
+	const d = new dialog.WebviewDialog<TestDialogResult>(
+		'webview-dialog-test', testDir, 'timestretch.html');
+	const result: TestDialogResult | null = await d.getResult();
+
+	if (result) {
+		vscode.window.showInformationMessage(
+			"Webview dialog result: " + JSON.stringify(result));
+	} else {
+		vscode.window.showInformationMessage(
+			"The webview dialog was cancelled.");
+	}
+
+    return {
+        target_tempo: 120, // Placeholder value, replace with actual user input from dialog
+        min_rate: undefined,
+        max_rate: undefined,
+    };
+}
+
 
 
 // This method is called when your extension is deactivated
