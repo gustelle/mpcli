@@ -3,6 +3,7 @@
 
 ```sh
 # start the backend
+cd backend
 fastapi dev src/mpcli/api.py 
 ```
 
