@@ -1,0 +1,22 @@
+info:
+  name: Tempo
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/tempo"
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /Users/guillaume/Dev/sound/demucs/separated/1_Concerto No.1 in D minor, BWV 1052 (Bach) - Glenn Gould, Leonard Bernstein, Columbia SO_30_second_sample_(Piano).wav
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

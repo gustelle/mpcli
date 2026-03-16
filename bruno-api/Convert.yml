@@ -1,0 +1,28 @@
+info:
+  name: Convert
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8000/convert
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /Users/guillaume/Dev/sound/demucs/separated/1_Concerto No.1 in D minor, BWV 1052 (Bach) - Glenn Gould, Leonard Bernstein, Columbia SO_30_second_sample_(Piano).wav
+      - name: target_format
+        type: text
+        value: mp3
+      - name: sample_rate
+        type: text
+        value: "48000"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,25 @@
+info:
+  name: Normalize
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:8000/normalize
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /Users/guillaume/Dev/sound/demucs/separated/1_Concerto No.1 in D minor, BWV 1052 (Bach) - Glenn Gould, Leonard Bernstein, Columbia SO_30_second_sample_(Piano).wav
+      - name: lufs
+        type: text
+        value: "-14"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

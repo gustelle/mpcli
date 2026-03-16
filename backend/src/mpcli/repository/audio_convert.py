@@ -1,12 +1,10 @@
-from io import BytesIO
+
 from typing import Literal
 
 import numpy as np
-import soundfile as sf
 from audiomentations import Mp3Compression
 
-from src.mpcli.entities.source import AudioSource, ensure_audio_shape
-from src.mpcli.repository.exceptions import AudioTransformError
+from src.mpcli.entities.source import AudioSource
 
 
 def convert(

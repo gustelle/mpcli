@@ -1,0 +1,33 @@
+info:
+  name: Timestretch
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:8000/timestretch
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /Users/guillaume/Dev/sound/demucs/separated/1_Concerto No.1 in D minor, BWV 1052 (Bach) - Glenn Gould, Leonard Bernstein, Columbia SO_30_second_sample_(Piano).wav
+      - name: target_tempo
+        type: text
+        value: "70"
+      - name: min_rate
+        type: text
+        value: "0.86"
+        disabled: true
+      - name: max_rate
+        type: text
+        value: "0.9"
+        disabled: true
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
