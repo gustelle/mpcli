@@ -9,6 +9,9 @@ This is a very simple tool to help producing music. It enables:
 
 # How to use ?
 
+
+## Simple way
+
 The most simple way is to use the REST API and an API client like [Bruno](https://www.usebruno.com/).
 
 You'll find in the folder [bruno-api](/bruno-api/) a ready to use local environment 
@@ -19,7 +22,9 @@ cd backend
 fastapi dev src/mpcli/api.py 
 ```
 
-However, a more robust and complete way of using the tool is to use the `cli`.
+## The hard way
+
+A more robust but complete way of using the tool is to use the `cli`.
 
 Firstly, proceed as follows:
 ```sh
