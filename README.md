@@ -63,6 +63,16 @@ An example / template of config file can be found here [template config file](/b
 
 to run the command, simply launch it:
 ```sh
-# example to normalize both files:
+# example to normalize both files
+# according the configuration above:
 poetry run normalize
+
+# if you want to normalize
+poetry run normalize
+
+# to detect tempo
+poetry run detect_tempo
+
+# to timestretch
+poetry run timestretch
 ```
