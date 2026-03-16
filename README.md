@@ -7,6 +7,12 @@ This is a very simple tool to help producing music. It enables:
 - normalizing the sound to a given [LUFS](https://fr.wikipedia.org/wiki/LKFS)
 - Detect the tempo of an audio file
 
+# Why this repo ?
+
+Because I struggled and lost hours trying to have a simple yet accurate time strectching tool. My MPC native functions aren't satisfying (it generates cracks when timestreching audio files) and I don't want to use a bazooka like a DAW for simple tasks aside my MPC.
+
+Thus I decided to write a **very simple, lightweith yet powerful tool**, using **best-of-breed libraries** and to assemble them together
+
 # How to use ?
 
 
