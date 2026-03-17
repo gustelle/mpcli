@@ -1,0 +1,64 @@
+# all sections may be a single config or a list of configs, e.g. [timestretch], [[timestretch]], etc.
+# example for a single config: [detect_tempo]
+# example for a list of configs: [[detect_tempo]]... [[detect_tempo]]...
+
+[detect_tempo]
+
+source = "/my/path/to/audio/file.wav"
+
+# the source may be a single audio file or a directory containing multiple audio files. 
+# If it's a directory, the program will process all audio files in the directory.
+
+[timestretch]
+
+# the source is either a directory or a file, 
+# if it's a directory, all the files in it will be processed if they are supported audio
+source = "/my/path/to/audio/file.wav"
+
+# where to save the output file(s)
+# it must be a directory
+output = "/my/path/to/output/directory"
+
+# the format to use for storing the output file, e.g. "mp3", "wav", etc.
+# valid formats are wav|mp3
+format = "mp3"
+
+# either decline a fixed rate, e.g. 0.85, or a range of rates, e.g. 0.85-1.15
+min_rate = 0.85
+max_rate = 0.85
+
+# example for a fixed rate: min_rate = 0.85, max_rate = 0.85
+# example for a range of rates: min_rate = 0.85, max_rate = 1.15
+# if min_rate is not provided, it will be set to 1.0
+# if max_rate is not provided, it will be set to 1.0
+
+# you may prefer to declare a tempo instead of a rate, e.g. 120.0 bpm, 
+# target_tempo = 120.0
+# ^ in such a case, omit the min_rate and max_rate parameters, 
+# | and the program will calculate the rate based on the detected tempo of the source audio file and the target tempo you declared.
+
+# optionnally add a tag to the output file name, 
+# e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-29_94bpm.mp3"
+#filename = "One_Drums_Kick_r_{{min_rate}}" # add a tag to the output file name, e.g. "Beethoven Piano Sonata No. 14 in C-Sharp Minor Bireboim Sl-29_94bpm.mp3"
+
+[convert]
+
+# the source is either a directory or a file, 
+source = "/my/path/to/audio/file.wav"
+
+# where to save the output file(s)
+output = "/my/path/to/output/directory"
+
+target_format = "mp3" # wav|mp3
+
+[normalize]
+
+source = "/my/path/to/audio/file.wav"
+output = "/my/path/to/output/directory"
+
+# the loudness level in LUFS, e.g. -14.0, -23.0, etc.
+lufs=-14.0
+
+target_format = "mp3" # wav|mp3
+
+

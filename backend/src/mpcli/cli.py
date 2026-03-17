@@ -24,6 +24,7 @@ from src.mpcli.use_cases.timestretch import execute_timestretch
 
 app = typer.Typer()
 
+CONFIG_FILE = "cli-config.toml"
 
 def _timestretched_filename(config: CLITimeStretchConfig, tempo: float) -> str:
 
@@ -56,7 +57,7 @@ def detect_tempo():
     table.add_column("Tempo", style="magenta")
 
     configs = read_configurations(
-        "config.toml", "detect_tempo", CLITempoEstimationConfig
+        CONFIG_FILE, "detect_tempo", CLITempoEstimationConfig
     )
 
     for config in configs:
@@ -93,7 +94,7 @@ def timestretch():
 
         # if config provided as an array, take the first element
         configs = read_configurations(
-            "config.toml", "timestretch", CLITimeStretchConfig
+            CONFIG_FILE, "timestretch", CLITimeStretchConfig
         )
 
         for c in configs:
@@ -140,7 +141,7 @@ def convert():
     table.add_column("Target name", style="magenta", no_wrap=True)
     table.add_column("Target format", style="magenta")
 
-    configs = read_configurations("config.toml", "convert", CLIConvertConfig)
+    configs = read_configurations(CONFIG_FILE, "convert", CLIConvertConfig)
 
     for c in configs:
 
@@ -176,7 +177,7 @@ def convert():
 @app.command()
 def normalize():
 
-    configs = read_configurations("config.toml", "normalize", CLINormalizeConfig)
+    configs = read_configurations(CONFIG_FILE, "normalize", CLINormalizeConfig)
 
     table = Table(title="Normalization Results")
 
