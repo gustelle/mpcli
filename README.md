@@ -25,6 +25,7 @@ You'll find in the folder [bruno-api](/bruno-api/) a ready to use local environm
 ```sh
 # start the backend
 cd backend
+poetry install
 fastapi dev src/mpcli/api.py 
 ```
 
@@ -36,6 +37,7 @@ Firstly, proceed as follows:
 ```sh
 # go to the backend
 cd backend
+poetry install
 ```
 
 Configure the [config.toml](/backend/config.toml) 
