@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 import jinja2
@@ -7,6 +6,7 @@ from loguru import logger
 from pydantic import ValidationError
 from rich.console import Console
 from rich.table import Table
+import fleep
 
 from src.mpcli.cli_entities import (
     CLIConfigError,
@@ -14,6 +14,7 @@ from src.mpcli.cli_entities import (
     CLINormalizeConfig,
     CLITempoEstimationConfig,
     CLITimeStretchConfig,
+    LocalAudioSource,
 )
 from src.mpcli.repository.audio_file import iter_sources, save_audio_file
 from src.mpcli.repository.toml_config import read_configurations
@@ -21,10 +22,12 @@ from src.mpcli.use_cases.convert import execute_format_conversion
 from src.mpcli.use_cases.normalization import execute_normalization
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
 from src.mpcli.use_cases.timestretch import execute_timestretch
+from src.mpcli.entities.source import AudioSourceError
 
 app = typer.Typer()
 
 CONFIG_FILE = "cli-config.toml"
+
 
 def _timestretched_filename(config: CLITimeStretchConfig, tempo: float) -> str:
 
@@ -56,9 +59,7 @@ def detect_tempo():
     table.add_column("Source", justify="right", style="cyan", no_wrap=True)
     table.add_column("Tempo", style="magenta")
 
-    configs = read_configurations(
-        CONFIG_FILE, "detect_tempo", CLITempoEstimationConfig
-    )
+    configs = read_configurations(CONFIG_FILE, "detect_tempo", CLITempoEstimationConfig)
 
     for config in configs:
 
@@ -93,42 +94,45 @@ def timestretch():
         table.add_column("BPM", justify="right", style="green")
 
         # if config provided as an array, take the first element
-        configs = read_configurations(
-            CONFIG_FILE, "timestretch", CLITimeStretchConfig
-        )
+        configs = read_configurations(CONFIG_FILE, "timestretch", CLITimeStretchConfig)
 
         for c in configs:
 
             for source in iter_sources(c.source):
 
-                result = execute_timestretch(
-                    source=source,
-                    target_tempo=c.target_tempo,
-                    min_rate=c.min_rate,
-                    max_rate=c.max_rate,
-                )
+                try:
 
-                if result is not None:
-                    # dump to a file according to the provided filename template, for debugging purposes
-                    filename = _timestretched_filename(c, result.original_tempo)
-                    sound_file = save_audio_file(
-                        output_dir=Path(c.output),
-                        filename=filename,
-                        data=result.converted_audio.to_array(),
-                        sample_rate=result.converted_audio.sample_rate,
-                        format=result.converted_audio.audio_format,
+                    result = execute_timestretch(
+                        source=source,
+                        target_tempo=c.target_tempo,
+                        min_rate=c.min_rate,
+                        max_rate=c.max_rate,
                     )
-                    table.add_row(
-                        str(c.source),
-                        sound_file.name,
-                        str(result.target_tempo),
-                    )
+
+                    if result is not None:
+                        # dump to a file according to the provided filename template, for debugging purposes
+                        filename = _timestretched_filename(c, result.original_tempo)
+                        sound_file = save_audio_file(
+                            output_dir=Path(c.output),
+                            filename=filename,
+                            data=result.converted_audio.to_array(),
+                            sample_rate=result.converted_audio.sample_rate,
+                            format=result.converted_audio.audio_format,
+                        )
+                        table.add_row(
+                            str(c.source),
+                            sound_file.name,
+                            str(result.target_tempo),
+                        )
+
+                except (ValueError, AudioSourceError) as e:
+                    logger.error(e)
 
         console = Console()
         console.print(table)
 
     except CLIConfigError as e:
-        print(f"Configuration error: {e}")
+        logger.error(f"Configuration error: {e}")
 
 
 @app.command()
@@ -150,8 +154,7 @@ def convert():
             result = execute_format_conversion(source, target_format=c.target_format)
 
             if result is not None:
-                
-                
+
                 # get numpy array from the converted audio source
                 converted_array = result.converted_audio.to_array()
 
@@ -189,7 +192,7 @@ def normalize():
         for source in iter_sources(c.source):
             result = execute_normalization(source, lufs=c.lufs)
             if result is not None:
-                
+
                 save_audio_file(
                     output_dir=c.output,
                     filename=result.converted_audio.name,
@@ -205,6 +208,22 @@ def normalize():
 
     console = Console()
     console.print(table)
+
+
+@app.command()
+def info():
+
+    configs = read_configurations(CONFIG_FILE, "info", LocalAudioSource)
+
+    for c in configs:
+
+        with open(c.source, "rb") as file:
+            info = fleep.get(file.read(128))
+            print(f"File: {c.source}")
+            print(f"Type: {info.type}")
+            print(f"Extension: {info.extension}")
+            print(f"Mime: {info.mime}")
+            print("-" * 20)
 
 
 if __name__ == "__main__":

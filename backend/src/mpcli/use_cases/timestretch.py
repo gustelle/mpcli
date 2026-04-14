@@ -37,6 +37,18 @@ def execute_timestretch(
     # estimate the global tempo
     estimate = estimate_tempo(source)
 
+    # special case when min_rate == max_rate == 1, we can skip the time stretching and return the original audio source
+    if min_rate == 1 and max_rate == 1:
+        logger.info(
+            f"the target tempo is the same as the original tempo ({estimate.tempo} BPM), skipping time stretching for source '{source.name}'"
+        )
+        return TimeStretchResult(
+            audio_source=source,
+            converted_audio=source,
+            original_tempo=estimate.tempo,
+            target_tempo=estimate.tempo,
+        )
+
     # compute the time stretch factor
     if min_rate != 1 or max_rate != 1:
         target_tempo = round(
@@ -47,12 +59,14 @@ def execute_timestretch(
         max_rate = target_tempo / estimate.tempo
     else:
         raise ValueError(
-            "Either target_tempo or min_rate and max_rate must be provided"
+            f"Error on source '{source.name}': "
+            f"Either target_tempo or min_rate and max_rate must be provided. "
+            f"Config provided: target_tempo={target_tempo}, min_rate={min_rate}, max_rate={max_rate}"
         )
 
     if min_rate == 1 and max_rate == 1:
-        print(
-            f"the target tempo is the same as the original tempo ({estimate.tempo} BPM)"
+        logger.info(
+            f"the target tempo is the same as the original tempo ({estimate.tempo} BPM), skipping time stretching for source '{source.name}'"
         )
         return None
 

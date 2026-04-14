@@ -46,10 +46,11 @@ class AudioSource(BaseModel):
 
     @classmethod
     def from_array(
-        self, data: np.ndarray, 
-        audio_format: Literal["wav", "mp3"], 
+        self,
+        data: np.ndarray,
+        audio_format: Literal["wav", "mp3"],
         sample_rate: int,
-        name: Optional[str] = None
+        name: Optional[str] = None,
     ) -> Self:
         """Create an AudioSource instance from an audio array.
 
@@ -76,13 +77,15 @@ class AudioSource(BaseModel):
                 audio_bytes=bytes_io.getvalue(),
                 audio_format=audio_format,
                 sample_rate=sample_rate,
-                name=name 
+                name=name,
             )
         except Exception as e:
             import traceback
 
             traceback.print_exc()
-            raise AudioSourceError(f"Failed to create AudioSource: {e}") from e
+            raise AudioSourceError(
+                f"Failed to create AudioSource for file '{name}' with format '{audio_format}' and sample rate '{sample_rate}': {str(e)}"
+            ) from e
 
     def to_array(self) -> np.ndarray:
         """Convert the audio bytes to a NumPy array.

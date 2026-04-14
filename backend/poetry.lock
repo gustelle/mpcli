@@ -965,6 +965,17 @@ files = [
 ]
 
 [[package]]
+name = "fleep"
+version = "1.0.1"
+description = "File format determination library"
+optional = false
+python-versions = ">=3.1"
+groups = ["main"]
+files = [
+    {file = "fleep-1.0.1.tar.gz", hash = "sha256:c8f62b258ee5364d7f6c1ed1f3f278e99020fc3f0a60a24ad1e10846e31d104c"},
+]
+
+[[package]]
 name = "fonttools"
 version = "4.61.1"
 description = "Tools to manipulate font files"
@@ -5314,4 +5325,4 @@ dev = ["pytest", "setuptools"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "059278791e66afd5c1d26a2713971d022cdeda73c309f3c0f7387cfea9b7c338"
+content-hash = "04898ffe794b48a8ac16fe7d04c6ec1dd3935bf47688a08c73a5f2dff8df9d21"

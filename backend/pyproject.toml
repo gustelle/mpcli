@@ -18,6 +18,7 @@ dependencies = [
     "python-multipart (>=0.0.22,<0.0.23)",
     "loguru (>=0.7.3,<0.8.0)",
     "pyloudnorm (>=0.2.0,<0.3.0)",
+    "fleep (>=1.0.1,<2.0.0)",
 ]
 
 [tool.poetry]
@@ -41,5 +42,5 @@ detect_tempo = "src.mpcli.cli:detect_tempo"
 timestretch = "src.mpcli.cli:timestretch"
 convert = "src.mpcli.cli:convert"
 normalize = "src.mpcli.cli:normalize"
-
+info = "src.mpcli.cli:info"
 

@@ -85,6 +85,7 @@ def time_stretch(
         # audiomentations expects the audio samples to be in shape (channels, frames)
         # not (frames, channels) as we're used to
         samples = ensure_audio_shape(samples)
+
         samples = samples.astype(np.float32).T
 
         new_samples = augmenter(samples=samples, sample_rate=sample_rate)
