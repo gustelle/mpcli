@@ -2,11 +2,8 @@ from pathlib import Path
 
 import fleep
 import jinja2
-import soundfile as sf
-import torch
 import typer
 from loguru import logger
-from omnivoice import OmniVoice
 from pydantic import ValidationError
 from rich.console import Console
 from rich.table import Table
@@ -27,6 +24,7 @@ from src.mpcli.use_cases.convert import execute_format_conversion
 from src.mpcli.use_cases.normalization import execute_normalization
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
 from src.mpcli.use_cases.timestretch import execute_timestretch
+from src.mpcli.use_cases.tts import execute_text_to_speech
 
 app = typer.Typer()
 
@@ -232,24 +230,39 @@ def info():
 
 @app.command()
 def tts():
+    """generate speech from text, cloning the voice of a reference audio"""
 
     configs = read_configurations(CONFIG_FILE, "tts", TextToSpeechConfig)
 
-    model = OmniVoice.from_pretrained(
-        "k2-fsa/OmniVoice", device_map="mps", dtype=torch.float16
-    )
+    table = Table(title="Text-to-Speech Results")
 
-    ref_audio = configs[0].voice
-    fn = ref_audio.stem
-    output_file = configs[0].output / f"{fn}-gen.wav"
-    text = configs[0].text
+    table.add_column("Voice", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Text", style="magenta")
+    table.add_column("Target name", style="green", no_wrap=True)
 
-    audio = model.generate(
-        text=text,
-        ref_audio=str(ref_audio),
-    )  # audio is a list of `np.ndarray` with shape (T,) at 24 kHz.
+    for c in configs:
+        try:
+            result = execute_text_to_speech(text=c.text, ref_audio=c.voice)
 
-    sf.write(output_file, audio[0], 24000)
+            if result is not None:
+                sound_file = save_audio_file(
+                    output_dir=c.output,
+                    filename=result.generated_audio.name,
+                    data=result.generated_audio.to_array(),
+                    sample_rate=result.generated_audio.sample_rate,
+                    format=result.generated_audio.audio_format,
+                )
+                table.add_row(
+                    c.voice.name,
+                    result.text,
+                    sound_file.name,
+                )
+
+        except Exception as e:
+            logger.error(f"Error during text-to-speech generation: {e}")
+
+    console = Console()
+    console.print(table)
 
 
 if __name__ == "__main__":

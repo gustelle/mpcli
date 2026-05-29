@@ -14,3 +14,9 @@ class AudioTransformError(Exception):
     """Raised when an error occurs during audio transformation."""
 
     pass
+
+
+class TextToSpeechError(Exception):
+    """Raised when an error occurs during text-to-speech generation."""
+
+    pass

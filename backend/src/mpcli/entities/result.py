@@ -24,3 +24,9 @@ class NormalizeResult(BaseModel):
     audio_source: AudioSource
     converted_audio: AudioSource
     lufs: float
+
+
+class TextToSpeechResult(BaseModel):
+    text: str
+    ref_audio: str
+    generated_audio: AudioSource
