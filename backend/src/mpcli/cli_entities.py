@@ -8,6 +8,12 @@ class CLIConfigError(ValueError):
     pass
 
 
+class TextToSpeechConfig(BaseModel):
+    output: Path
+    voice: Path
+    text: str
+
+
 class LocalAudioSource(BaseModel):
     source: Path
 

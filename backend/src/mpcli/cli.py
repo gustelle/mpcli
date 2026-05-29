@@ -1,12 +1,15 @@
 from pathlib import Path
 
+import fleep
 import jinja2
+import soundfile as sf
+import torch
 import typer
 from loguru import logger
+from omnivoice import OmniVoice
 from pydantic import ValidationError
 from rich.console import Console
 from rich.table import Table
-import fleep
 
 from src.mpcli.cli_entities import (
     CLIConfigError,
@@ -15,14 +18,15 @@ from src.mpcli.cli_entities import (
     CLITempoEstimationConfig,
     CLITimeStretchConfig,
     LocalAudioSource,
+    TextToSpeechConfig,
 )
+from src.mpcli.entities.source import AudioSourceError
 from src.mpcli.repository.audio_file import iter_sources, save_audio_file
 from src.mpcli.repository.toml_config import read_configurations
 from src.mpcli.use_cases.convert import execute_format_conversion
 from src.mpcli.use_cases.normalization import execute_normalization
 from src.mpcli.use_cases.tempo import execute_tempo_estimation
 from src.mpcli.use_cases.timestretch import execute_timestretch
-from src.mpcli.entities.source import AudioSourceError
 
 app = typer.Typer()
 
@@ -224,6 +228,28 @@ def info():
             print(f"Extension: {info.extension}")
             print(f"Mime: {info.mime}")
             print("-" * 20)
+
+
+@app.command()
+def tts():
+
+    configs = read_configurations(CONFIG_FILE, "tts", TextToSpeechConfig)
+
+    model = OmniVoice.from_pretrained(
+        "k2-fsa/OmniVoice", device_map="mps", dtype=torch.float16
+    )
+
+    ref_audio = configs[0].voice
+    fn = ref_audio.stem
+    output_file = configs[0].output / f"{fn}-gen.wav"
+    text = configs[0].text
+
+    audio = model.generate(
+        text=text,
+        ref_audio=str(ref_audio),
+    )  # audio is a list of `np.ndarray` with shape (T,) at 24 kHz.
+
+    sf.write(output_file, audio[0], 24000)
 
 
 if __name__ == "__main__":

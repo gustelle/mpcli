@@ -25,3 +25,33 @@ A configuration template is provided [here](./cli-config-template.toml)
 * `poetry run detect_tempo` will just give the tempos of the files located in the source directory 
 * `poetry run convert` 
 * `poetry run normalize` 
+* `poetry run tts` will synthesize speech from text, cloning the voice of a reference audio file
+
+### Text-to-Speech (`tts`)
+
+`poetry run tts` generates speech from text using the [OmniVoice](https://huggingface.co/k2-fsa/OmniVoice) model. It clones the timbre of a reference audio file (`voice`) and reads the provided `text` with that voice.
+
+The generated audio is written to the `output` directory as a `.wav` file (24 kHz), named after the reference voice file with a `-gen` suffix (e.g. a reference `moonlight.wav` produces `moonlight-gen.wav`).
+
+> **Note:** the model runs on Apple Silicon GPU (`mps`) with `float16` precision. The weights are downloaded from Hugging Face on first run.
+
+Configuration section in `config.toml`:
+
+```toml
+[tts]
+
+# the reference audio file whose voice will be cloned
+voice = "/my/path/to/reference/voice.wav"
+
+# the text to synthesize with the cloned voice
+text = "The text that will be spoken."
+
+# directory where the generated <voice-stem>-gen.wav file will be saved
+output = "/my/path/to/output/directory"
+```
+
+| Field    | Type   | Required | Description                                                        |
+| -------- | ------ | -------- | ------------------------------------------------------------------ |
+| `voice`  | path   | yes      | Reference audio file whose voice is cloned                         |
+| `text`   | string | yes      | Text to synthesize                                                 |
+| `output` | path   | yes      | Output directory for the generated `<voice-stem>-gen.wav` file     |

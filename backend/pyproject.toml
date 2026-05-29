@@ -19,6 +19,8 @@ dependencies = [
     "loguru (>=0.7.3,<0.8.0)",
     "pyloudnorm (>=0.2.0,<0.3.0)",
     "fleep (>=1.0.1,<2.0.0)",
+    "omnivoice (>=0.1.5,<0.2.0)",
+    "torchaudio (>=2.11.0,<3.0.0)",
 ]
 
 [tool.poetry]
@@ -43,4 +45,5 @@ timestretch = "src.mpcli.cli:timestretch"
 convert = "src.mpcli.cli:convert"
 normalize = "src.mpcli.cli:normalize"
 info = "src.mpcli.cli:info"
+tts = "src.mpcli.cli:tts"
 
